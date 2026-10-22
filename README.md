@@ -56,6 +56,18 @@ Supports [External Item Descriptions](https://steamcommunity.com/sharedfiles/fil
    - `giveitem Ban Hammer` / `giveitem Residential IP`
    - `luamod claude-chan-isaac` to reload the Lua after editing
 
+## Tests (no game needed)
+
+Smoke tests run the mod against a stubbed Isaac API with plain Lua 5.3+:
+
+```
+lua tests/smoke_test.lua .
+lua tests/hud_text_test.lua .
+lua tests/eid_test.lua .
+```
+
+They catch crashes and logic errors, not how the game feels; see [docs/TESTING.md](docs/TESTING.md) for the in-game checklist.
+
 ## Project layout
 
 ```

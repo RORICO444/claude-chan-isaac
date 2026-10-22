@@ -1,0 +1,441 @@
+-- Minimal stub of the Isaac API to smoke-test the mod's callbacks.
+local root = arg[1]
+package.path = root .. "/?.lua;" .. package.path
+
+local callbacks = {}
+local saved
+local mod = {}
+function mod:AddCallback(id, fn, param) table.insert(callbacks, { id = id, fn = fn, param = param }) end
+function mod:SaveData(s) saved = s end
+function mod:HasData() return saved ~= nil end
+function mod:LoadData() return saved end
+function RegisterMod() return mod end
+
+function include(name)
+    return dofile(root .. "/" .. name:gsub("%.", "/") .. ".lua")
+end
+
+-- tiny json stub
+package.preload.json = function()
+    return {
+        encode = function(t)
+            local parts = {}
+            for k, v in pairs(t) do parts[#parts + 1] = k .. "=" .. tostring(v) end
+            return table.concat(parts, ";")
+        end,
+        decode = function(s)
+            local t = {}
+            for k, v in s:gmatch("(%w+)=([^;]+)") do
+                if v == "true" then v = true elseif v == "false" then v = false else v = tonumber(v) or v end
+                t[k] = v
+            end
+            return t
+        end,
+    }
+end
+
+DoorSlot = { NUM_DOOR_SLOTS = 8 }
+TearFlags = { TEAR_HOMING = "homing", TEAR_PIERCING = "piercing", TEAR_SPECTRAL = "spectral", TEAR_POISON = "poison", TEAR_SLOW = "slow" }
+PickupVariant = { PICKUP_COLLECTIBLE = 100, PICKUP_LOCKEDCHEST = 60, PICKUP_COIN = 20 }
+ModCallbacks = setmetatable({}, { __index = function(_, k) return k end })
+EntityType = { ENTITY_PLAYER = 1, ENTITY_TEAR = 2, ENTITY_PROJECTILE = 9, ENTITY_CLOTTY = 15 }
+CacheFlag = { CACHE_DAMAGE = 1, CACHE_RANGE = 2, CACHE_SHOTSPEED = 4, CACHE_SPEED = 8, CACHE_TEARCOLOR = 16, CACHE_FIREDELAY = 32, CACHE_FLYING = 64 }
+ActiveSlot = { SLOT_PRIMARY = 0, SLOT_POCKET = 2 }
+EntityFlag = { FLAG_FRIENDLY = 1 }
+function Color(...) return { ... } end
+SoundEffect = { SOUND_POWERUP_SPEWER = 132 }
+function SFXManager() return { Play = function(_, id) print("  SFX:", id) end } end
+Vector = { Zero = { 0, 0 } }
+function EntityRef(e) return e end
+
+local items = { ["Ban Hammer"] = 733, ["Residential IP"] = 734, ["Compact"] = 735, ["You're Absolutely Right!"] = 736, ["9.9 Yuan Relay"] = 737, ["Ultrathink"] = 738, ["1M Context"] = 739, ["Silent Update"] = 740, ["--dangerously-skip-permissions"] = 741, ["All Tests Passing"] = 742, ["Vibe Coding"] = 743, ["Banked Reset"] = 744, ["Subagent Swarm"] = 745, ["The Constitution"] = 746, ["Opus Mode"] = 747 }
+local playerItems = {}
+Isaac = {}
+function Isaac.GetItemIdByName(n) return items[n] or -1 end
+function Isaac.GetTrinketIdByName(n) return ({ ["529 Overloaded"] = 190, ["Hardcoded Output"] = 191, ["Thinking Cleared"] = 192, ["Welcome Notice"] = 193, ["Status Page"] = 194, ["Appeal Form"] = 195 })[n] or -1 end
+ROOMFRAME, ROOMCLEAR = 0, false
+function Isaac.GetPillEffectByName(n) return ({ ["Cat-girl Mode"] = 50, ["Brb, Getting Food"] = 51 })[n] or -1 end
+function Isaac.GetPlayerTypeByName(n) return n == "Claude-chan" and 41 or -1 end
+function Isaac.GetScreenHeight() return 270 end
+function Isaac.RenderText(s) print("  HUD: " .. s) end
+local pdata = {}
+local player = { HasCollectible = function(_, id) return playerItems[id] end,
+    GetPlayerType = function() return 41 end, GetData = function() return pdata end,
+    SetPocketActiveItem = function(self, id) self.pocket = id end,
+    FireDelay = 0, charge = 4, coins = 40, hearts = 2, MaxFireDelay = 10,
+    AddHearts = function(self, n) self.hearts = self.hearts + n end, soul = 0,
+    AddSoulHearts = function(self, n) self.soul = self.soul + n end,
+    GetNumCoins = function(self) return self.coins end, AddCoins = function(self, n) self.coins = self.coins + n end,
+    GetActiveCharge = function(self) return self.charge end, SetActiveCharge = function(self, c) self.charge = c end, HasTrinket = function(_, id) return HELD_TRINKET == id end,
+    TearRange = 260, ShotSpeed = 1, MoveSpeed = 1, Damage = 3.5,
+    AddCacheFlags = function() end,
+    EvaluateItems = function(self) self.Damage = 3.5; for _, cb in ipairs(callbacks) do if cb.id == "MC_EVALUATE_CACHE" then cb.fn(mod, self, CacheFlag.CACHE_DAMAGE) end end end }
+player.ToPlayer = function(self) return self end
+player.TryRemoveTrinket = function(_, id) if HELD_TRINKET == id then HELD_TRINKET = nil; return true end return false end
+function Isaac.GetPlayer() return player end
+
+local spawned = 0
+local function makeNpc(boss)
+    local data = {}
+    local npc = { Type = 10, Variant = 0, SubType = 0, Position = {}, MaxHitPoints = 10, HitPoints = 10, CanShutDoors = true }
+    function npc:ToNPC() return self end
+    function npc:IsVulnerableEnemy() return true end
+    function npc:IsBoss() return boss end
+    function npc:HasEntityFlags() return false end
+    function npc:GetData() return data end
+    function npc:TakeDamage(d) self.HitPoints = self.HitPoints - d end
+    function npc:Kill() self.dead = true end
+    function npc:AddConfusion(_, f) self.confused = f end
+    function npc:AddCharmed(_, f) self.charmed = f end
+    function npc:AddFreeze(_, f) self.frozen = (self.frozen or 0) + 1 end
+    return npc
+end
+local roomEntities = {}
+SPAWNED = {}
+function Isaac.GetFreeNearPosition(p) return p end
+function Isaac.Spawn(t, v, st, pos, vel)
+    spawned = spawned + 1
+    if t == 15 then local n = makeNpc(false); n.Type = 15; SPAWNED[#SPAWNED + 1] = n; return n end
+    if t == 2 then local tr = { vel = vel }; function tr:ToTear() return self end; return tr end
+    return makeNpc(false)
+end
+function Isaac.GetRoomEntities() return roomEntities end
+
+local stage = 1
+function RNG()
+    local r = { s = 1 }
+    function r:SetSeed(s) assert(s > 0); self.s = s end
+    function r:RandomInt(n) self.s = (self.s * 1103515245 + 12345) % 2147483648; return self.s % n end
+    function r:RandomFloat() return self:RandomInt(10000) / 10000 end
+    return r
+end
+local hudVisible = true
+function Game()
+    return {
+        GetNumPlayers = function() return 1 end,
+        GetLevel = function() return { GetStage = function() return stage end } end,
+        GetSeeds = function() return { GetStartSeed = function() return 123456 end } end,
+        GetHUD = function() return {
+            IsVisible = function() return hudVisible end,
+            ShowItemText = function(_, a, b) print("  ITEMTEXT: " .. a .. " / " .. b) end,
+        } end,
+        ShakeScreen = function() end,
+        GetFrameCount = function() return FRAME end,
+        GetRoom = function() return { GetDoor = function(_, slot) return DOORS[slot] end, SetClear = function(_, v) ROOMCLEAR = v end, IsClear = function() return ROOMCLEAR end, GetFrameCount = function() return ROOMFRAME end, GetCenterPos = function() return { 0, 0 } end } end,
+    }
+end
+
+local function fire(id, param, ...)
+    local ret
+    for _, cb in ipairs(callbacks) do
+        if cb.id == id and (cb.param == nil or param == nil or cb.param == param) then
+            ret = cb.fn(mod, ...) or ret
+        end
+    end
+    return ret
+end
+
+FRAME = 0
+local realInclude = include
+include = function(name) local m = realInclude(name); if name == "scripts.risk" and not RISK_REF then RISK_REF = m end; return m end
+dofile(root .. "/main.lua")
+include = realInclude
+local Risk = include("scripts.risk") -- fresh copy just for reading constants; real state lives in main's instance
+
+print("== new run")
+fire("MC_POST_NEW_LEVEL")          -- fires before game start: should be ignored
+fire("MC_POST_GAME_STARTED", nil, false)
+fire("MC_POST_RENDER")
+
+print("== floors 2..8, take a hit each floor")
+for s = 2, 8 do
+    stage = s
+    fire("MC_POST_NEW_LEVEL")
+    fire("MC_POST_NEW_ROOM")
+    fire("MC_ENTITY_TAKE_DMG", EntityType.ENTITY_PLAYER, player)
+end
+fire("MC_POST_RENDER")
+
+print("== clean room clear")
+fire("MC_POST_NEW_ROOM"); fire("MC_PRE_SPAWN_CLEAN_AWARD"); fire("MC_POST_RENDER")
+
+print("== enemy scaling")
+local e = makeNpc(false); fire("MC_POST_NPC_INIT", nil, e)
+print("  enemy HP 10 ->", e.MaxHitPoints)
+
+print("== hydra (50 kills)")
+for _ = 1, 50 do fire("MC_POST_ENTITY_KILL", nil, makeNpc(false)) end
+print("  respawned:", spawned)
+
+print("== ban hammer")
+local normal, boss = makeNpc(false), makeNpc(true)
+boss.HitPoints = 100
+roomEntities = { normal, boss }
+local before = spawned
+print("  use returns", fire("MC_USE_ITEM", 733, 733, nil, player))
+print("  normal dead:", normal.dead, "boss HP:", boss.HitPoints)
+fire("MC_POST_ENTITY_KILL", nil, normal)
+print("  banned enemy respawned:", spawned > before)
+
+print("== residential ip")
+playerItems[734] = true
+fire("MC_POST_PEFFECT_UPDATE", nil, player)
+fire("MC_POST_PEFFECT_UPDATE", nil, player) -- must apply only once
+fire("MC_POST_RENDER")
+
+print("== save / continue")
+fire("MC_PRE_GAME_EXIT", nil, true)
+fire("MC_POST_RENDER") -- not started: no output
+fire("MC_POST_NEW_LEVEL")
+fire("MC_POST_GAME_STARTED", nil, true)
+fire("MC_POST_RENDER")
+
+print("== claude-chan")
+print("  pocket item:", player.pocket)
+for _, f in pairs(CacheFlag) do fire("MC_EVALUATE_CACHE", nil, player, f) end
+print("  range/shotspeed/speed:", player.TearRange, player.ShotSpeed, player.MoveSpeed, "tearcolor set:", player.TearColor ~= nil)
+FRAME = 0
+local fired, limitedAt = 0, nil
+for f = 1, 900 do
+    FRAME = f
+    if f % 11 == 0 then
+        local tear = { SpawnerEntity = player, CollisionDamage = 3.5 }
+        fire("MC_POST_FIRE_TEAR", nil, tear)
+        fired = fired + 1
+        if pdata.ccUsage.limited > 0 and not limitedAt then limitedAt = f end
+        if pdata.ccUsage.limited > 0 and pdata.ccUsage.limited < 150 and not shownWeak then
+            shownWeak = true; print("  limited tear damage:", tear.CollisionDamage)
+        end
+    end
+    fire("MC_POST_PEFFECT_UPDATE", nil, player)
+    if f == limitedAt then fire("MC_POST_RENDER") end
+end
+print("  hit usage limit at frame", limitedAt, "(" .. (limitedAt or 0) / 30 .. "s of firing)")
+fire("MC_POST_RENDER")
+
+print("== compact")
+local proj = { Type = 9, ToNPC = function() return nil end, Remove = function(self) self.removed = true end }
+local foe = makeNpc(false); foe.Type = 10
+roomEntities = { proj, foe }
+pdata.ccUsage.limited = 0; pdata.ccUsage.value = 10
+fire("MC_USE_ITEM", 735, 735, nil, player)
+print("  projectile removed:", proj.removed, "enemy confused:", foe.confused, "usage:", pdata.ccUsage.value)
+
+print("== absolutely right")
+playerItems[736] = true
+local shooter = makeNpc(false)
+local bullet = { Type = 9, SpawnerEntity = shooter, ToNPC = function() return nil end }
+fire("MC_ENTITY_TAKE_DMG", EntityType.ENTITY_PLAYER, player, 1, 0, { Entity = bullet })
+print("  shooter charmed:", shooter.charmed)
+
+print("== 9.9 yuan relay")
+local r0 = Risk and nil
+playerItems[737] = true
+fire("MC_POST_PEFFECT_UPDATE", nil, player); fire("MC_POST_PEFFECT_UPDATE", nil, player)
+local swaps, rooms = 0, 40
+for _ = 1, rooms do fire("MC_POST_NEW_ROOM"); if player.Damage < 3.5 then swaps = swaps + 1 end end
+print("  swapped rooms:", swaps .. "/" .. rooms, "damage now:", player.Damage)
+fire("MC_POST_RENDER")
+
+print("== ultrathink")
+playerItems[737] = nil
+fire("MC_POST_NEW_ROOM"); player:EvaluateItems()
+local base = player.Damage
+for _ = 1, 5 do fire("MC_USE_ITEM", 738, 738, nil, player); print("  damage:", player.Damage) end
+fire("MC_POST_NEW_ROOM"); print("  after leaving room:", player.Damage, "(base " .. base .. ")")
+
+print("== 1m context")
+playerItems[739] = true
+player.TearRange = 260; fire("MC_EVALUATE_CACHE", nil, player, CacheFlag.CACHE_RANGE)
+print("  range:", player.TearRange)
+local tdata = {}
+local tear = { SpawnerEntity = player, CollisionDamage = 3.5, FrameCount = 0, GetData = function() return tdata end }
+for _, f in ipairs({0, 30, 60, 90, 120}) do tear.FrameCount = f; fire("MC_POST_TEAR_UPDATE", nil, tear); print("  frame " .. f .. " damage:", tear.CollisionDamage) end
+
+print("== 529 overloaded")
+local victim = makeNpc(false); roomEntities = { victim }
+HELD_TRINKET = 190
+for f = 0, 1799 do ROOMFRAME = f; fire("MC_POST_UPDATE") end
+print("  outages in 60s:", victim.frozen, "player fire delay:", player.FireDelay)
+ROOMCLEAR = true; victim.frozen = 0
+for f = 0, 1799 do ROOMFRAME = f; fire("MC_POST_UPDATE") end
+print("  outages in cleared room:", victim.frozen)
+
+print("== silent update")
+playerItems[739] = nil; playerItems[740] = true
+for st = 1, 5 do stage = st; fire("MC_POST_NEW_LEVEL"); print(string.format("  floor %d damage: %.2f", st, player.Damage)) end
+
+print("== skip permissions")
+playerItems[740] = nil; playerItems[741] = true
+local unlocked, opened, removed, rooms = 0, 0, 0, 100
+for _ = 1, rooms do
+    DOORS = { [0] = { locked = true, IsLocked = function(self) return self.locked end, TryUnlock = function(self) self.locked = false; unlocked = unlocked + 1 end } }
+    local function pk(v) return { Variant = v, ToPickup = function(self) return self end, Remove = function() removed = removed + 1 end, TryOpenChest = function() opened = opened + 1 end } end
+    roomEntities = { pk(60), pk(20), pk(100) }
+    fire("MC_POST_NEW_ROOM")
+end
+print("  doors unlocked:", unlocked, "chests opened:", opened, "pickups deleted:", removed, "(over " .. rooms .. " rooms)")
+
+print("== tests passing")
+playerItems[741] = nil
+ROOMCLEAR = false
+local opened = 0
+DOORS = { [0] = { Open = function() opened = opened + 1 end }, [3] = { Open = function() opened = opened + 1 end } }
+fire("MC_USE_ITEM", 742, 742, nil, player)
+print("  room clear:", ROOMCLEAR, "doors opened:", opened)
+
+print("== hardcoded output")
+HELD_TRINKET = 191
+local strong = { SpawnerEntity = player, CollisionDamage = 12 }
+fire("MC_POST_FIRE_TEAR", nil, strong)
+print("  12 damage tear ->", strong.CollisionDamage)
+
+print("== thinking cleared")
+HELD_TRINKET = 192; DOORS = {}; roomEntities = {}
+fire("MC_POST_NEW_ROOM"); print("  damage:", player.Damage, "charge:", player.charge)
+fire("MC_POST_NEW_ROOM"); print("  damage:", player.Damage, "charge:", player.charge)
+HELD_TRINKET = nil
+fire("MC_POST_NEW_ROOM"); print("  dropped -> damage:", player.Damage, "charge:", player.charge)
+
+print("== vibe coding")
+HELD_TRINKET = nil; playerItems[743] = true
+local counts, bugs = {}, 0
+for _ = 1, 200 do
+    local t = { SpawnerEntity = player, Velocity = 10, CollisionDamage = 3.5, AddTearFlags = function(_, f) counts[f] = (counts[f] or 0) + 1 end }
+    fire("MC_POST_FIRE_TEAR", nil, t)
+    if t.Velocity == -10 then bugs = bugs + 1 end
+end
+local parts = {}
+for k, v in pairs(counts) do parts[#parts + 1] = k .. "=" .. v end
+table.sort(parts)
+print("  effects:", table.concat(parts, " "), "bugs:", bugs)
+stage = 6; fire("MC_POST_NEW_LEVEL")
+print("  coins after bill:", player.coins)
+
+print("== banked reset")
+playerItems[743] = nil
+pdata.ccUsage.value = 100; pdata.ccUsage.limited = 120
+fire("MC_USE_ITEM", 744, 744, nil, player)
+print("  usage:", pdata.ccUsage.value, "limited:", pdata.ccUsage.limited)
+fire("MC_POST_RENDER")
+
+print("== subagent swarm")
+playerItems[745] = true
+local before = spawned
+pdata.ccUsage.value = 0
+local main = { SpawnerEntity = player, CollisionDamage = 3.5, Variant = 0, Position = {}, Color = "c",
+    Velocity = { Rotated = function(_, a) return "rotated " .. a end } }
+fire("MC_POST_FIRE_TEAR", nil, main)
+print("  subagent tears spawned:", spawned - before, "usage per shot:", pdata.ccUsage.value)
+
+print("== pills")
+playerItems[745] = nil
+fire("MC_POST_NEW_ROOM"); player:EvaluateItems()
+local d0 = player.Damage
+local fd0 = player.MaxFireDelay
+player.EvaluateItems = function(self)
+    self.Damage = 3.5; self.MaxFireDelay = 10
+    for _, cb in ipairs(callbacks) do if cb.id == "MC_EVALUATE_CACHE" then cb.fn(mod, self, CacheFlag.CACHE_DAMAGE); cb.fn(mod, self, CacheFlag.CACHE_FIREDELAY) end end
+end
+fire("MC_USE_PILL", 50, 50, player)
+print("  cat-girl: damage", player.Damage, "fire delay", player.MaxFireDelay)
+fire("MC_POST_NEW_ROOM"); print("  next room: damage", player.Damage, "fire delay", player.MaxFireDelay)
+player.FireDelay = 0
+fire("MC_USE_PILL", 51, 51, player)
+print("  food: hearts", player.hearts, "fire delay", player.FireDelay)
+
+print("== welcome notice")
+HELD_TRINKET = 193
+local grunt, bossy = makeNpc(false), makeNpc(true)
+bossy.HitPoints = 100
+roomEntities = { grunt, bossy }
+fire("MC_USE_ITEM", 733, 733, nil, player)
+print("  grunt charmed:", grunt.charmed, "grunt dead:", grunt.dead, "boss HP:", bossy.HitPoints)
+
+print("== misbans")
+HELD_TRINKET = nil
+local list = {}
+for i = 1, 30 do list[i] = makeNpc(false) end
+roomEntities = list
+fire("MC_USE_ITEM", 733, 733, nil, player)
+fire("MC_POST_RENDER")
+
+print("== status page")
+playerItems[734] = nil
+HELD_TRINKET = 194
+fire("MC_POST_NEW_ROOM")
+fire("MC_ENTITY_TAKE_DMG", EntityType.ENTITY_PLAYER, player, 1, 0, {})
+fire("MC_POST_RENDER")
+
+print("== relay slime")
+HELD_TRINKET = nil; ROOMCLEAR = false
+local rooms = 0
+while #SPAWNED == 0 and rooms < 50 do rooms = rooms + 1; fire("MC_POST_NEW_ROOM") end
+print("  first slime after", rooms, "rooms; scale", SPAWNED[1].Scale, "HP", SPAWNED[1].MaxHitPoints, "risk", Risk and "" or "")
+local i = 1
+while i <= #SPAWNED do fire("MC_POST_ENTITY_KILL", nil, SPAWNED[i]); i = i + 1 end
+local gens = {}
+for _, n in ipairs(SPAWNED) do local g = n:GetData().ccRelaySlime; gens[g] = (gens[g] or 0) + 1 end
+print("  total slimes:", #SPAWNED, "gen0/1/2:", gens[0], gens[1], gens[2])
+
+print("== constitution")
+HELD_TRINKET = nil; playerItems[746] = true
+fire("MC_POST_PEFFECT_UPDATE", nil, player); fire("MC_POST_PEFFECT_UPDATE", nil, player)
+print("  soul hearts:", player.soul)
+-- the real game stops at the first callback that returns a value
+local function hit()
+    for _, cb in ipairs(callbacks) do
+        if cb.id == "MC_ENTITY_TAKE_DMG" and (cb.param == nil or cb.param == 1) then
+            local r = cb.fn(mod, player, 1, 0, {}, 0)
+            if r ~= nil then return r end
+        end
+    end
+end
+stage = 7; fire("MC_POST_NEW_LEVEL")
+print("  first hit returns:", hit(), "second hit returns:", hit())
+player:EvaluateItems()
+print("  damage:", player.Damage)
+
+print("== agentic transformation")
+for k in pairs(playerItems) do playerItems[k] = nil end
+player.CanFly = false
+player.EvaluateItems = function(self)
+    self.Damage = 3.5; self.MaxFireDelay = 10; self.CanFly = false
+    for _, cb in ipairs(callbacks) do if cb.id == "MC_EVALUATE_CACHE" then
+        for _, f in ipairs({ CacheFlag.CACHE_DAMAGE, CacheFlag.CACHE_FIREDELAY, CacheFlag.CACHE_FLYING }) do cb.fn(mod, self, f) end
+    end end
+end
+for _, id in ipairs({ 738, 735 }) do playerItems[id] = true; fire("MC_POST_PEFFECT_UPDATE", nil, player) end
+print("  2 items -> fly:", player.CanFly)
+playerItems[743] = true; fire("MC_POST_PEFFECT_UPDATE", nil, player); fire("MC_POST_PEFFECT_UPDATE", nil, player)
+print("  3 items -> fly:", player.CanFly, "fire delay:", player.MaxFireDelay, "damage:", player.Damage)
+
+print("== suspended + appeal")
+for k in pairs(playerItems) do playerItems[k] = nil end
+player.EvaluateItems = function(self)
+    self.Damage = 3.5
+    for _, cb in ipairs(callbacks) do if cb.id == "MC_EVALUATE_CACHE" then cb.fn(mod, self, CacheFlag.CACHE_DAMAGE) end end
+end
+local R = RISK_REF
+HELD_TRINKET = nil
+R.state.risk = 80; player:EvaluateItems()
+R:Add(15); print("  no appeal: risk", R.state.risk, "suspended", R:IsSuspended(), "damage", player.Damage)
+R:Add(-20); print("  risk drops:", R.state.risk, "damage", player.Damage)
+HELD_TRINKET = 195; R.state.risk = 85
+R:Add(10); print("  with appeal: risk", R.state.risk, "trinket left", HELD_TRINKET, "damage", player.Damage)
+
+print("== opus mode")
+HELD_TRINKET = nil
+for k in pairs(playerItems) do playerItems[k] = nil end
+RISK_REF.state.risk = 10; player:EvaluateItems()
+local function pd() for k in pairs(pdata) do if k:find("^ccAgentic") or k:find("^ccThinking") then pdata[k] = nil end end end
+pd()
+playerItems[747] = true; player.coins = 2
+fire("MC_POST_PEFFECT_UPDATE", nil, player); player:EvaluateItems()
+print("  coins 2 -> damage", player.Damage)
+for _ = 1, 20 do fire("MC_POST_FIRE_TEAR", nil, { SpawnerEntity = player, CollisionDamage = 3.5 }) end
+fire("MC_POST_PEFFECT_UPDATE", nil, player)
+print("  after 20 tears: coins", player.coins, "damage", player.Damage)
+player.coins = 1; fire("MC_POST_PEFFECT_UPDATE", nil, player)
+print("  picked up a coin: damage", player.Damage)
+print("OK")
