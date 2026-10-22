@@ -15,6 +15,8 @@ The dungeon is a shared relay address. Claude-chan is trying to find the person 
 
 The captions last seven simulation seconds, do not pause combat, and respect HUD visibility. Each chapter is shown once per run; its progress is saved in `Risk.state.storySeen`, a four-bit mask. English, Simplified Chinese and Japanese text uses the existing HUD renderer, with English fallback when its CJK font is unavailable. A route that skips a chapter does not replay it later automatically.
 
+An early successful appeal does not suppress later floor chapters. Stages 3 and 5 use alternative dialogue when the review has already succeeded: DeepSeek welcomes the restored player, and the player keeps the response letter while others remain in the queue. These variants share their chapter's saved bit, so they cannot replay the same chapter after continue.
+
 ## Next collaboration slice
 
 1. **Offline Cache**: a defensive passive which stores one room-clear reward and releases it after an outage. Design the pickup duplication exclusions before implementation.

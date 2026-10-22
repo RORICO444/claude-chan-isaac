@@ -101,3 +101,18 @@ risk.state.reviewApproved = true; fire("MC_POST_NEW_ROOM")
 assert(risk.state.storySeen == 15)
 fire("MC_POST_RENDER"); assert(draws[#draws - 1] == "4. A human finally read it")
 print("OK: Support Ticket boundaries, duplicate use, co-op, seed lifecycle and saved story chapters")
+
+-- An appeal on floor one must not suppress both later floor chapters.
+risk.state = { risk = 20 }; stage = 1; draws = {}
+fire("MC_POST_GAME_STARTED", false)
+risk.state.reviewApproved = true
+fire("MC_POST_NEW_ROOM"); assert(risk.state.storySeen == 9)
+stage = 3; fire("MC_POST_NEW_LEVEL"); fire("MC_POST_RENDER")
+assert(risk.state.storySeen == 11)
+assert(draws[#draws] == "DeepSeek: Restored? Good. You are still welcome.")
+stage = 5; fire("MC_POST_NEW_LEVEL"); fire("MC_POST_RENDER")
+assert(risk.state.storySeen == 15 and draws[#draws - 1] == "3. Beyond the queue")
+local count = #draws
+fire("MC_PRE_GAME_EXIT"); fire("MC_POST_GAME_STARTED", true); fire("MC_POST_RENDER")
+assert(#draws == count, "completed chapters repeated after continue")
+print("OK: early approval preserves later story progression and reviewed dialogue")

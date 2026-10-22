@@ -2,6 +2,8 @@
 
 ## v0.4-dev (2026-10-23)
 
+- Early appeal success no longer suppresses later story chapters. Stages 3 and 5 have approved-route dialogue in all three languages; save/continue still shows each chapter once.
+
 - Reviewed and merged PR #1 (collaboration checks) and PR #2 (RORICO444's 21 item/trinket icons).
 - Added Support Ticket, a six-charge manual appeal costing three coins for risk -20, with failure and Car Battery guards. Inspired by support-queue and mistaken-ban complaints, not a claim about a real support policy.
 - Added playable DeepSeek-chan with blue tears, a firing-interval/damage tradeoff, and team-wide no-hit risk recovery.

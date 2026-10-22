@@ -10,6 +10,7 @@ Updated 2026-10-23 (Japan time), v0.4-dev. Read this before continuing. This is 
 - Added `scripts/story.lua`: four original localised chapters. `Risk.state.storySeen` is a saved bitmask; `reviewApproved` unlocks the last caption on the next room. Chapters do not pause the run or replace vanilla ending files.
 - Added custom generated character atlases, portraits, names and selection animations for both characters. The owner correctly noted the original gameplay build still looked like Isaac; these new assets now replace its skin paths. **The new art has not yet been verified in the running game.** See `ART_GENERATION.md` and `ART_SPEC.md`.
 - Fixed Silent Update's RNG lifecycle: `MC_POST_NEW_LEVEL` can fire before game start. Each floor now seeds before drawing; continue keeps its saved multiplier.
+- Fixed early-review story progression: approving an appeal on floor one no longer suppresses stages 3 and 5. Both later chapters have approved-route dialogue in en/zh/ja and share the original saved chapter bits.
 - Windows checks now reject the Python Store placeholder and force UTF-8. Asset checks validate PNG dimensions, exact item-icon regeneration, item pools, character paths and ANM2 frame bounds. Symmetry failures now return a failing exit status.
 
 ## Validation and limits
@@ -20,12 +21,14 @@ Updated 2026-10-23 (Japan time), v0.4-dev. Read this before continuing. This is 
 - That view exposed a subtitle/EID overlap. Subtitles were moved above the lower HUD; the revised position still needs runtime verification.
 - A pre-existing `stackable items v2` mod throws `resources/scripts/main.lua:154: table index is nil`; do not attribute that error to this mod. Do not modify or disable unrelated mods without checking with the owner.
 - The owner stopped Computer Use with physical Escape. No further app input was sent after that stop. Final sprite-animation checks, save/continue in game, vanilla Repentance and local co-op remain unverified. Keep these limitations visible.
+- On the next continuation, the previous test game was closed normally. All 100 reviewed application files, including both character sheets and selection assets, were installed in the existing mod folder and verified against the source with matching hashes. The runtime checkout is now connected to `codex/appeal-story`; notes and saves remain untouched.
+- Restart is currently blocked by Steam's explicit Cloud sync-failed warning, which says proceeding can permanently lose progress. Computer Use is waiting for the owner's decision before accepting that warning. No new gameplay session was started. The game process was verified absent after closing the previous session. Do not bypass the warning through an alternative launcher.
 - Tests used muted game settings. Close the game when finishing any future tests. Do not operate login dialogs or use credentials supplied in chat.
 
 ## Next exact steps
 
-1. After the owner closes the game, install the reviewed files in the existing mod location, preserving notes and saves. Verify hashes and the local/remote commit IDs.
-2. Launch muted, start a seeded test, and inspect both characters: all four head directions, shooting, walk, hurt, death, flying, stage/boss portraits and selection labels. Inspect custom-sheet cells carefully; generated art may need pixel alignment and back-head corrections. Test D4, transformation costumes and skin-colour effects before calling the art complete.
+1. Fetch and confirm the feature branch and installed files still match. The art installation itself is complete; do not recopy or recreate a second mod folder. Back up the installed previous version before any further overwrite.
+2. Resolve Steam Cloud sync or obtain the owner's explicit decision about its launch warning. Then launch muted, start a seeded test, and inspect both characters: all four head directions, shooting, walk, hurt, death, flying, stage/boss portraits and selection labels. Inspect custom-sheet cells carefully; generated art may need pixel alignment and back-head corrections. Test D4, transformation costumes and skin-colour effects before calling the art complete.
 3. Test Support Ticket at risk 0, risk 10/50, 2/3 coins, Car Battery; confirm charge behaviour. Continue a saved run and check the story does not repeat. Check EID layout at the revised subtitle location.
 4. Keep development via branches and PRs. Fetch before editing; preserve concurrent contributions. Do not publish a Workshop release yet.
 5. The next designed content slice is in `STORY.md`: Offline Cache, Gemini-chan and the neutral Queue Clerk. Implement one small feature at a time with en/zh/ja text and a specific game test.

@@ -65,4 +65,5 @@ What the docs can't tell us is whether the gameplay *feels* right. That's what t
 - See story chapters at run start, stage 3, stage 5, and the next room after successful review. Save and continue: completed chapters stay completed. Hide the HUD: captions hide too.
 - Inspect both custom character skins, four head directions, all movement/hurt/death poses, character select, stage/boss portraits and names. Check D4 and costume interactions. **New character art runtime checks are pending.**
 - Subtitle position was moved above the lower HUD after observing EID overlap; confirm it with EID enabled.
+- Use Support Ticket on the first floor, then reach stage 3 and stage 5: both later chapters must still appear with their approved-route dialogue. Continue after all four chapters: none should repeat.
 - Repentance+ 1.9.7.17 gameplay startup was observed on 2026-10-23. This is not evidence of a full-run pass, normal Repentance compatibility or local co-op correctness.

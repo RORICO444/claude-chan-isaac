@@ -4,26 +4,31 @@ local Story = {}
 
 function Story:Init(mod, Risk)
     local active, timer, ready
-    local function chapter()
+    local function chapter(reviewOnly)
         local stage = Game():GetLevel():GetStage()
-        local key = Risk.state.reviewApproved and "story_review"
-            or (stage >= 5 and "story_3" or stage >= 3 and "story_2" or "story_1")
+        local key = stage >= 5 and "story_3" or stage >= 3 and "story_2" or "story_1"
+        if reviewOnly then
+            if not Risk.state.reviewApproved then return end
+            key = "story_review"
+        end
         local bit = ({ story_1 = 1, story_2 = 2, story_3 = 4, story_review = 8 })[key]
         local seen = type(Risk.state.storySeen) == "number" and Risk.state.storySeen or 0
         if (seen & bit) == 0 then
             Risk.state.storySeen = seen | bit
-            active, timer = key, 210
+            active = Risk.state.reviewApproved and (key == "story_2" or key == "story_3")
+                and key .. "_reviewed" or key
+            timer = 210
         end
     end
     mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, function()
         active, timer, ready = nil, 0, true
-        chapter()
+        chapter(false)
     end)
     mod:AddCallback(ModCallbacks.MC_POST_NEW_LEVEL, function()
-        if ready then chapter() end
+        if ready then chapter(false) end
     end)
     mod:AddCallback(ModCallbacks.MC_POST_NEW_ROOM, function()
-        if ready and Risk.state.reviewApproved then chapter() end
+        if ready then chapter(true) end
     end)
     mod:AddCallback(ModCallbacks.MC_POST_UPDATE, function()
         if timer and timer > 0 then timer = timer - 1 end
