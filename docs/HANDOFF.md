@@ -2,6 +2,8 @@
 
 State of the project as of 2026-10-22, for whoever picks it up next (you, a friend, or a new Claude session).
 
+Friends now work on this too: the contributor guide is [CONTRIBUTING.md](../CONTRIBUTING.md) (Chinese), and every change goes through a branch and a pull request.
+
 ## What this is
 
 **Claude-chan: Risk Control**: a free, non-commercial parody mod for *The Binding of Isaac: Repentance / Repentance+*. It satirises AI account bans and risk control (风控): every floor hands you a random proxy IP, crowded IPs raise your risk score, and higher risk makes the game harder. You play as **Claude-chan** (design by ZipZipPipe), armed with a Ban Hammer and a usage limit.
@@ -42,6 +44,7 @@ Each item's meme source is in `CHANGELOG.md` and `README.md`.
 1. **In-game test**: `docs/TESTING.md`, ~15 min. Paste any red console text to Claude.
 2. **Message ZipZipPipe** (character designer) for permission, and **mySh1_loRis**, who made the Bilibili animation 《克劳德的结合》 and may make a similar reskin mod. Possible collaborator. Drafts were sent to the owner as `claude-chan-isaac-zipzippipe_message.md`. They are **deliberately not in the repo**.
 3. **Find a pixel artist** for Claude-chan's sprites (`docs/ART_SPEC.md`).
+4. **Let friends in:** add them under Settings → Collaborators, and protect `main` (Settings → Branches: require a pull request and the `check` status) so nobody pushes to it by accident.
 
 ### For Claude (after the test)
 
@@ -62,6 +65,9 @@ Each item's meme source is in `CHANGELOG.md` and `README.md`.
 | `content/*.xml` | items, item pools, players, pills |
 | `tools/make_placeholders.py` | Generates all placeholder sprites (16×16 art → 32×32 PNG, size-checked) |
 | `tests/` | `lua tests/smoke_test.lua .` etc. |
+| `tools/check.sh` | Empty files, Lua syntax, XML, sprite paths, all tests. CI (`.github/workflows/check.yml`) runs the same script |
+| `CONTRIBUTING.md`, `.github/` | Contributor guide (Chinese), PR and issue templates |
+| `CLAUDE.md` | Rules any Claude session picks up automatically |
 | `docs/` | TESTING, BALANCE, PUBLISHING, ART_SPEC, IDEAS, GOALS, this file |
 | `resources/ART_LICENSE.md` | Art is **not** MIT: ZipZipPipe credit + non-commercial |
 
@@ -81,7 +87,7 @@ Each item's meme source is in `CHANGELOG.md` and `README.md`.
 
 ## Environment notes (Claude Code cloud sessions)
 
-- `lua5.4` isn't preinstalled: `apt-get install -y lua5.4`.
+- `lua5.4` isn't preinstalled: `apt-get install -y lua5.4`. If the package mirror is unreachable, `texlua` (TeX Live, Lua 5.3) is often there and `tools/check.sh` falls back to it.
 - The Isaac wiki and most news sites are blocked from WebFetch. The API docs are readable from GitHub raw: `https://raw.githubusercontent.com/wofsauge/IsaacDocs/main/docs/<Class>.md`.
 - `gh`'s token was invalid; GitHub access works through the session's repo attachment, not `gh`.
 - The container is wiped between sessions: push to GitHub before ending.

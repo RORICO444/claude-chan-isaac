@@ -1,0 +1,20 @@
+# 每次推送和每个 PR 都自动跑 tools/check.sh。
+# PR 页面上出现绿色 ✓ 才合并；红色 ✗ 点进去看是哪一步。
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lua 5.4
+        run: sudo apt-get update -q && sudo apt-get install -y -q lua5.4
+      - name: Run checks
+        run: bash tools/check.sh
+        env:
+          LUA: lua5.4
