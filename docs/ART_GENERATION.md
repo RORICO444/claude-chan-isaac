@@ -18,4 +18,8 @@ The technical frame-layout reference was `character_gabriel.png` from [catinsura
 
 ## Known QA work
 
-The image tool does not guarantee per-cell correctness. These are first-pass assets. Inspect all four head directions, especially back-head cells, special poses, walking, hurt/death and costume overlays in game. PNG and animation-bound validation checks file structure, not the visual correctness of a pose. The owner stopped Computer Use before that final runtime pass.
+The image tool does not guarantee per-cell correctness. An offline visual pass found Claude's two rear-facing head cells still faced forward, and one DeepSeek rear-facing cell was bald. These three cells have now been corrected with imagegen and imported without changing any unrelated pixels. Claude's idle and firing rear views share the same corrected hair frame, because there is no visible mouth in a rear view. DeepSeek keeps her existing rear firing frame.
+
+The correction prompt specified the 32x32 cells at x=128..159 and x=160..191, y=0..31, requested back hair with no eyes, mouth or skin disk, and required the rest of the atlas to remain unchanged. Claude's patch requested orange-red hair and the sunflower silhouette; DeepSeek's requested navy hair and fin ornaments, matching her adjacent rear frame. The importer takes only the designated generated cells and checks that all other RGBA pixels are identical to the input. Both corrected sheets were inspected offline after import.
+
+These remain first-pass assets. Inspect all four head directions, special poses, walking, hurt/death and costume overlays in game. PNG and animation-bound validation checks file structure, not the correctness of a rendered engine pose. Steam's Cloud sync-failed warning currently blocks the final runtime pass, pending the owner's decision. The game has been closed; the corrected art is installed in the existing mod location.

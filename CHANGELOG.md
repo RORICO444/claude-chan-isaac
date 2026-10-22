@@ -2,6 +2,8 @@
 
 ## v0.4-dev (2026-10-23)
 
+- Corrected three rear-head sprite cells after offline visual review: Claude no longer faces forward in her back-facing cells, and DeepSeek's missing back hair is filled. All other atlas pixels are preserved; live animation QA remains pending.
+
 - Early appeal success no longer suppresses later story chapters. Stages 3 and 5 have approved-route dialogue in all three languages; save/continue still shows each chapter once.
 
 - Reviewed and merged PR #1 (collaboration checks) and PR #2 (RORICO444's 21 item/trinket icons).

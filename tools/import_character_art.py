@@ -12,6 +12,8 @@ ROOT = Path(__file__).resolve().parent.parent
 parser = argparse.ArgumentParser()
 parser.add_argument('--claude', required=True)
 parser.add_argument('--deepseek', required=True)
+parser.add_argument('--claude-back-heads', help='Edited atlas: reuse corrected top-row cell 5 for both back-head frames')
+parser.add_argument('--deepseek-back-heads', help='Edited atlas: import only top-row cell 4')
 args = parser.parse_args()
 
 menu = Image.new('RGBA', (256, 128))
@@ -25,6 +27,25 @@ for index, (key, name, source) in enumerate([
     assert image.width == image.height, 'Expected the square animation layout'
     image = image.resize((512, 512), Image.Resampling.NEAREST)
     assert image.getextrema()[3][0] == 0, 'Atlas must contain real transparency'
+    patch_source = args.claude_back_heads if key == 'claudechan' else args.deepseek_back_heads
+    if patch_source:
+        patch = Image.open(patch_source).convert('RGBA')
+        assert patch.width == patch.height, 'Head correction must use the same square atlas layout'
+        patch = patch.resize((512, 512), Image.Resampling.NEAREST)
+        box = (128, 0, 192 if key == 'claudechan' else 160, 32)
+        original = image.copy()
+        if key == 'claudechan':
+            # The two rear-facing states have no visible mouth; one corrected
+            # rear view is valid for both idle and firing head frames.
+            rear = patch.crop((160, 0, 192, 32))
+            image.paste(rear, (128, 0))
+            image.paste(rear, (160, 0))
+        else:
+            image.paste(patch.crop(box), (box[0], box[1]))
+        # Copy the imported cells back out: every other pixel must stay identical.
+        outside = image.copy()
+        outside.paste(original.crop(box), (box[0], box[1]))
+        assert outside.tobytes() == original.tobytes(), 'A head patch changed unrelated art'
     output = ROOT / 'resources/gfx/characters/costumes' / f'character_{key}.png'
     output.parent.mkdir(parents=True, exist_ok=True)
     image.save(output)
