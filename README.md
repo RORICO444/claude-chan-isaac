@@ -68,6 +68,12 @@ lua tests/eid_test.lua .
 
 They catch crashes and logic errors, not how the game feels; see [docs/TESTING.md](docs/TESTING.md) for the in-game checklist.
 
+`bash tools/check.sh` runs all of them plus syntax, XML and sprite-path checks. GitHub Actions runs the same script on every push and pull request.
+
+## Contributing
+
+Friends are welcome to work on this. Read [CONTRIBUTING.md](CONTRIBUTING.md) (in Chinese) or [docs/HANDOFF.md](docs/HANDOFF.md) (in English): work on a branch, open a pull request, and keep player-facing text in English, Chinese and Japanese.
+
 ## Project layout
 
 ```
@@ -84,6 +90,7 @@ content/                  items.xml, itempools.xml, players.xml, pocketitems.xml
 docs/ART_SPEC.md          sprite checklist for the pixel artist
 resources/gfx/            sprites
 tools/make_placeholders.py  regenerates the placeholder item sprites
+tools/check.sh            pre-commit checks (same as CI)
 ```
 
 ## Roadmap
@@ -138,6 +145,8 @@ Code: [MIT](LICENSE). Character designs and character art are **not** MIT: credi
 
 安装方法：把本文件夹放进 `mods/` 目录，在 `options.ini` 中设置 `EnableDebugConsole=1`，游戏中按 `~` 输入 `giveitem Ban Hammer` 测试。
 
+**想一起开发？** 测试、画图、出点子、写代码都欢迎，请看 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
 本作为同人恶搞作品，与 Anthropic 无关。
 
 ## 日本語
@@ -172,5 +181,7 @@ Code: [MIT](LICENSE). Character designs and character art are **not** MIT: credi
 - **529 Overloaded**（トリンケット）：戦闘中20秒ごとに2秒間すべてがダウン。敵は凍結し、自分も涙を撃てない。
 
 導入方法：このフォルダを `mods/` に置き、`options.ini` で `EnableDebugConsole=1` にして、ゲーム中に `~` で `giveitem Ban Hammer` を入力するとテストできます。
+
+**開発に参加したい方へ：** テスト・ドット絵・アイデア・コード、どれも歓迎です。[CONTRIBUTING.md](CONTRIBUTING.md)（中国語）と [docs/HANDOFF.md](docs/HANDOFF.md)（英語）をご覧ください。
 
 ファンによるパロディ作品で、Anthropicとは関係ありません。
