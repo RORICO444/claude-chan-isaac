@@ -537,7 +537,20 @@ def appeal_form():
     return c
 
 
+def support_ticket():
+    c = clear()
+    rrect(c, 4, 5, 27, 27, 2, "P")
+    line(c, 5, 11, 26, 11, "c", 2)
+    for y in (16, 20, 24):
+        line(c, 8, y, 15, y, "#")
+    ellipse(c, 22, 21, 5, 5, "H")
+    line(c, 19, 21, 21, 23, "F")
+    line(c, 21, 23, 25, 18, "F")
+    return c
+
+
 SPRITES = {
+    "support_ticket": support_ticket,
     "ban_hammer": ban_hammer,
     "residential_ip": residential_ip,
     "compact": compact,
@@ -629,6 +642,9 @@ def main():
                 print(f"asymmetric silhouette: {name} ({diff} px)")
         print(f"symmetry check: {len(SYMMETRIC)} silhouettes, "
               f"{len(PIXEL_SYMMETRIC)} pixel-mirrored, {bad} failures")
+
+        if bad:
+            raise SystemExit(1)
 
     if "--preview" in args:
         path = Path(args[args.index("--preview") + 1])

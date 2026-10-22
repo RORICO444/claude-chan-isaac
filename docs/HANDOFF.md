@@ -1,93 +1,39 @@
-# Handoff
+# Handoff for Claude and contributors
 
-State of the project as of 2026-10-22, for whoever picks it up next (you, a friend, or a new Claude session).
+Updated 2026-10-23 (Japan time), v0.4-dev. Read this before continuing. This is a Codex implementation handoff; no separate Claude session reviewed this change.
 
-Friends now work on this too: the contributor guide is [CONTRIBUTING.md](../CONTRIBUTING.md) (Chinese), and every change goes through a branch and a pull request.
+## Current work
 
-## What this is
+- PR #1 (collaboration/CI) and PR #2 (RORICO444 item icons) were reviewed and merged, preserving contribution history. PR #2 originally targeted `setup/collaboration`; it was retargeted to `main` after #1 merged.
+- Added `Support Ticket`: six-charge shop active, 3 coins for risk -20, no payment/charge if coins are insufficient or risk is zero; Car Battery cannot charge twice.
+- Added playable `DeepSeek-chan`: 2 red + 1 soul heart, 3 coins, 1 key, pocket Support Ticket, damage x0.85, firing interval x0.85 and blue tears. A no-hit room reduces shared risk by two extra points once for the team.
+- Added `scripts/story.lua`: four original localised chapters. `Risk.state.storySeen` is a saved bitmask; `reviewApproved` unlocks the last caption on the next room. Chapters do not pause the run or replace vanilla ending files.
+- Added custom generated character atlases, portraits, names and selection animations for both characters. The owner correctly noted the original gameplay build still looked like Isaac; these new assets now replace its skin paths. **The new art has not yet been verified in the running game.** See `ART_GENERATION.md` and `ART_SPEC.md`.
+- Fixed Silent Update's RNG lifecycle: `MC_POST_NEW_LEVEL` can fire before game start. Each floor now seeds before drawing; continue keeps its saved multiplier.
+- Windows checks now reject the Python Store placeholder and force UTF-8. Asset checks validate PNG dimensions, exact item-icon regeneration, item pools, character paths and ANM2 frame bounds. Symmetry failures now return a failing exit status.
 
-**Claude-chan: Risk Control**: a free, non-commercial parody mod for *The Binding of Isaac: Repentance / Repentance+*. It satirises AI account bans and risk control (风控): every floor hands you a random proxy IP, crowded IPs raise your risk score, and higher risk makes the game harder. You play as **Claude-chan** (design by ZipZipPipe), armed with a Ban Hammer and a usage limit.
+## Validation and limits
 
-- Repo: https://github.com/WaterLily5297/claude-chan-isaac (public, `main`)
-- Requested by a Chinese friend of the owner. Audience: Chinese and Japanese players, so everything player-facing is in English, Simplified Chinese and Japanese.
+- `bash tools/check.sh`: passes using Lua 5.3 (`texlua`) and Python 3.10 on Windows. All four Lua tests pass, including new item boundaries, duplicate use, co-op risk, seeded floor lifecycle, saved story chapters and exact EID registration counts.
+- All 21 PR #2 icons regenerate byte-for-byte; the new Support Ticket icon does too.
+- Repentance+ **1.9.7.17** successfully loaded the installed gameplay build. The visible run was DeepSeek-chan with 3 coins, 1 key and pocket Support Ticket; risk HUD and the first story caption rendered. A later view showed 0 coins and 0 risk, consistent with a ticket activation.
+- That view exposed a subtitle/EID overlap. Subtitles were moved above the lower HUD; the revised position still needs runtime verification.
+- A pre-existing `stackable items v2` mod throws `resources/scripts/main.lua:154: table index is nil`; do not attribute that error to this mod. Do not modify or disable unrelated mods without checking with the owner.
+- The owner stopped Computer Use with physical Escape. No further app input was sent after that stop. Final sprite-animation checks, save/continue in game, vanilla Repentance and local co-op remain unverified. Keep these limitations visible.
+- Tests used muted game settings. Close the game when finishing any future tests. Do not operate login dialogs or use credentials supplied in chat.
 
-## Status in one line
+## Next exact steps
 
-**Built and checked as far as possible without the game; never run in the real game.**
+1. After the owner closes the game, install the reviewed files in the existing mod location, preserving notes and saves. Verify hashes and the local/remote commit IDs.
+2. Launch muted, start a seeded test, and inspect both characters: all four head directions, shooting, walk, hurt, death, flying, stage/boss portraits and selection labels. Inspect custom-sheet cells carefully; generated art may need pixel alignment and back-head corrections. Test D4, transformation costumes and skin-colour effects before calling the art complete.
+3. Test Support Ticket at risk 0, risk 10/50, 2/3 coins, Car Battery; confirm charge behaviour. Continue a saved run and check the story does not repeat. Check EID layout at the revised subtitle location.
+4. Keep development via branches and PRs. Fetch before editing; preserve concurrent contributions. Do not publish a Workshop release yet.
+5. The next designed content slice is in `STORY.md`: Offline Cache, Gemini-chan and the neutral Queue Clerk. Implement one small feature at a time with en/zh/ja text and a specific game test.
 
-| Check | Status |
-|---|---|
-| Lua syntax, XML validity | ✅ every file |
-| Smoke tests against a stubbed API (`tests/`) | ✅ all pass |
-| API calls against the community docs | ✅ all used calls exist with the right signatures (see `docs/TESTING.md`) |
-| In-game test | ❌ not done |
-| Balance | ❌ untested; see `docs/BALANCE.md` |
-| Real art | ❌ all placeholder |
+## Project conventions
 
-## What's built (v0.3-dev)
+`main.lua` loads modules onto one shared mod object. Constitution damage cancellation must register before risk damage bookkeeping. Persistent run state goes in `Risk.state`. Use seeded RNG, no network calls or telemetry in gameplay, and content XML rather than replacing vanilla resources.
 
-- **Systems:** risk score + random IP per floor, enemy HP scaling (×1 → ×3), hydra respawns (risk 40+), **Suspended** at 90+ (damage ×0.75), misbans on Ban Hammer, HUD in en/zh/ja with English fallback, save/continue.
-- **Character:** Claude-chan: Range +1.5, Shot Speed +0.2, Speed −0.1, pocket Ban Hammer, usage-limit meter. Placeholder: vanilla Isaac sprites.
-- **15 items:** Ban Hammer, Residential IP, Compact, You're Absolutely Right!, 9.9 Yuan Relay, Ultrathink, 1M Context, Silent Update, --dangerously-skip-permissions, All Tests Passing, Vibe Coding, Banked Reset, Subagent Swarm, The Constitution, Opus Mode.
-- **6 trinkets:** 529 Overloaded, Hardcoded Output, Thinking Cleared, Welcome Notice, Status Page, Appeal Form.
-- **2 pills:** Cat-girl Mode, Brb, Getting Food.
-- **1 transformation:** Agentic (any 3 of the 6 Claude Code items).
-- **1 enemy:** Relay Slime (placeholder: tinted vanilla Clotty), splits 1 → 7.
-- **EID** descriptions for everything, in 3 languages.
+Code/item icons are MIT; character design/art terms are separate in `resources/ART_LICENSE.md`. Design credits: ZipZipPipe, plus 上善无形 for DeepSeek. No official logos. Enemies are infrastructure and abuse mechanisms, not populations. Keep notes, credentials, personal images, saves, machine-specific paths and backups out of GitHub. Prior-version backups are local and verified; their paths are deliberately absent from this repository.
 
-Each item's meme source is in `CHANGELOG.md` and `README.md`.
-
-## Next steps, in order
-
-### Needs the owner
-
-1. **In-game test**: `docs/TESTING.md`, ~15 min. Paste any red console text to Claude.
-2. **Message ZipZipPipe** (character designer) for permission, and **mySh1_loRis**, who made the Bilibili animation 《克劳德的结合》 and may make a similar reskin mod. Possible collaborator. Drafts were sent to the owner as `claude-chan-isaac-zipzippipe_message.md`. They are **deliberately not in the repo**.
-3. **Find a pixel artist** for Claude-chan's sprites (`docs/ART_SPEC.md`).
-4. **Let friends in:** add them under Settings → Collaborators, and protect `main` (Settings → Branches: require a pull request and the `check` status) so nobody pushes to it by accident.
-
-### For Claude (after the test)
-
-1. Fix whatever the test breaks. Most likely: All Tests Passing (doors may re-close), Relay Slime, CJK font path (`font/cjk/lanapixel.fnt` is a guess).
-2. Apply balance tweaks if the test agrees (`docs/BALANCE.md`): enemy HP cap ×3 → ×2, Subagent Swarm 50% → 40%, Claude-chan usage cost 4 → 3.
-3. Then: real art swap-in, custom enemies (Distillation Bot, Timezone Ghost), the four AI-musume bosses (`docs/IDEAS.md`), Workshop upload (`docs/PUBLISHING.md`).
-
-## Where things are
-
-| Path | What |
-|---|---|
-| `main.lua` | Entry point; includes every module in order (**order matters**, see below) |
-| `scripts/constants.lua` | Item / trinket / pill / player IDs, risk tiers |
-| `scripts/risk.lua` | Risk score, IP roll, Suspended + Appeal, save/load (`Risk.state`), HUD |
-| `scripts/items/`, `scripts/characters/`, `scripts/enemies/` | One file per thing |
-| `scripts/eid.lua` | All EID descriptions |
-| `scripts/hud_text.lua` | HUD strings in en/zh/ja + CJK font loading |
-| `content/*.xml` | items, item pools, players, pills |
-| `tools/make_placeholders.py` | Generates all placeholder sprites (16×16 art → 32×32 PNG, size-checked) |
-| `tests/` | `lua tests/smoke_test.lua .` etc. |
-| `tools/check.sh` | Empty files, Lua syntax, XML, sprite paths, all tests. CI (`.github/workflows/check.yml`) runs the same script |
-| `CONTRIBUTING.md`, `.github/` | Contributor guide (Chinese), PR and issue templates |
-| `CLAUDE.md` | Rules any Claude session picks up automatically |
-| `docs/` | TESTING, BALANCE, PUBLISHING, ART_SPEC, IDEAS, GOALS, this file |
-| `resources/ART_LICENSE.md` | Art is **not** MIT: ZipZipPipe credit + non-commercial |
-
-## Conventions (follow these when adding things)
-
-- **New item checklist:** script in `scripts/items/` → ID in `constants.lua` → `content/items.xml` → `itempools.xml` → `include` in `main.lua` → EID (3 languages) → sprite in `make_placeholders.py` → README (3 languages) → CHANGELOG → a row in TESTING.md → a stub case in `tests/smoke_test.lua`.
-- Anything that must survive save/continue goes in **`Risk.state`** (it's what gets saved), not `player:GetData()`.
-- **Callback order matters.** `MC_ENTITY_TAKE_DMG` stops at the first callback that returns a value, so The Constitution is included *before* `Risk:Init`.
-- Seeded RNG per module (`RNG():SetSeed(startSeed + offset)`), so runs are reproducible.
-- Before packaging, check that no `.lua`/`.xml`/`.md` file is empty. A script bug once silently wiped `risk.lua`, and `luac -p` passes on an empty file.
-
-## Content rules (agreed with the owner)
-
-- Enemies are **abuse mechanisms** (shared proxies, mass accounts, bots), **never people or nationalities**. Over-banning is part of the joke (misbans).
-- Never reference Grok's July 2025 offensive content; the Grok-chan boss idea uses only the "update rolled back" angle.
-- No official Anthropic / OpenAI / etc. logos. Stays free and non-commercial. Credit ZipZipPipe; DeepSeek-chan also needs 上善无形 and CC BY-NC-SA 4.0.
-
-## Environment notes (Claude Code cloud sessions)
-
-- `lua5.4` isn't preinstalled: `apt-get install -y lua5.4`. If the package mirror is unreachable, `texlua` (TeX Live, Lua 5.3) is often there and `tools/check.sh` falls back to it.
-- The Isaac wiki and most news sites are blocked from WebFetch. The API docs are readable from GitHub raw: `https://raw.githubusercontent.com/wofsauge/IsaacDocs/main/docs/<Class>.md`.
-- `gh`'s token was invalid; GitHub access works through the session's repo attachment, not `gh`.
-- The container is wiped between sessions: push to GitHub before ending.
+The owner supplied Bilibili video BV1yUJZ6WEpg as inspiration. Public page/API retrieval failed in this session, so no claim was made that its downloadable files or license had been inspected, and no video pixels were used.

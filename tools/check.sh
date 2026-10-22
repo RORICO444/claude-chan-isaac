@@ -9,6 +9,7 @@
 
 set -u
 cd "$(dirname "$0")/.."
+export PYTHONUTF8=1 PYTHONIOENCODING=utf-8
 
 LUA="${LUA:-}"
 if [ -z "$LUA" ]; then
@@ -25,7 +26,7 @@ fi
 PY="${PY:-}"
 if [ -z "$PY" ]; then
     for c in python3 python; do
-        if command -v "$c" >/dev/null 2>&1; then PY="$c"; break; fi
+        if command -v "$c" >/dev/null 2>&1 && "$c" -c 'import sys; assert sys.version_info >= (3, 9)' >/dev/null 2>&1; then PY="$c"; break; fi
     done
 fi
 
@@ -49,7 +50,7 @@ while IFS= read -r -d '' f; do lua_files+=("$f"); done \
 
 echo "== 3. XML 格式 + 贴图路径 / XML + sprite paths"
 if [ -z "$PY" ]; then
-    echo "  - 没有 Python，跳过（GitHub 上会检查）"
+    bad "Python 3.9+ not found; asset checks are required"
 else
     if ! "$PY" - <<'EOF'
 import glob, os, sys
@@ -77,6 +78,10 @@ if ok:
 sys.exit(0 if ok else 1)
 EOF
     then fail=1; fi
+fi
+
+if [ -n "$PY" ]; then
+    "$PY" tools/check_assets.py || fail=1
 fi
 
 echo "== 4. 测试 / tests (stubbed Isaac API)"

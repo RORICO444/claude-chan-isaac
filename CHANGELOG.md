@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.4-dev (2026-10-23)
+
+- Reviewed and merged PR #1 (collaboration checks) and PR #2 (RORICO444's 21 item/trinket icons).
+- Added Support Ticket, a six-charge manual appeal costing three coins for risk -20, with failure and Car Battery guards. Inspired by support-queue and mistaken-ban complaints, not a claim about a real support policy.
+- Added playable DeepSeek-chan with blue tears, a firing-interval/damage tradeoff, and team-wide no-hit risk recovery.
+- Added The Appeal Queue, four original story captions in en/zh/ja, saved once per chapter per run.
+- Added custom character atlases, portraits, name images and character-menu assets for Claude and DeepSeek. First-pass art still needs in-game animation and costume interaction QA.
+- Seed Silent Update before every floor roll, including the engine's pre-start NEW_LEVEL callback; continued runs retain their stored multiplier.
+- Fixed Python detection/UTF-8 handling on Windows. Added deterministic sprite, character asset, animation frame-bound and item-pool validation, plus boundary/lifecycle tests.
+
+Validation: all offline checks pass. Repentance+ 1.9.7.17 loaded the gameplay prototype and displayed DeepSeek's pocket item and the story. The owner stopped Computer Use before final character-art runtime checks; see HANDOFF.
+
+
 ## v0.3-dev (unreleased, not yet tested in game)
 
 New items, each based on a Claude / AI meme:

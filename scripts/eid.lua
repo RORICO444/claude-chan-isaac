@@ -5,6 +5,11 @@ local Constants = include("scripts.constants")
 local Eid = {}
 
 local descriptions = {
+    [Constants.Item.SUPPORT_TICKET] = {
+        en_us = { "Support Ticket", "Costs 3 coins: risk -20#6 room charges#No coins or no risk: keeps the charge#Car Battery does not bill twice" },
+        zh_cn = { "人工复核工单", "支付3枚硬币：风控值-20#6格充能#硬币不足或风控为零时不消耗充能#车载电池不会重复扣费" },
+        ja_jp = { "サポートチケット", "コイン3枚でリスク値-20#6チャージ#コイン不足・リスク0なら消費しない#カーバッテリーで二重請求しない" },
+    },
     [Constants.Item.BAN_HAMMER] = {
         en_us = { "Ban Hammer", "Bans every non-boss enemy in the room#Bosses take 60 damage#Banned enemies never respawn as new accounts#20% of bans are misbans of innocent developers: +3 risk each" },
         zh_cn = { "封号锤", "封禁房间内所有非Boss敌人#Boss受到60点伤害#被封禁的敌人不会以新账号复活#20%是误封的无辜开发者：每次风控值+3" },
@@ -129,6 +134,11 @@ local pillDescriptions = {
 }
 
 local characterDescriptions = {
+    [Constants.Player.DEEPSEEK_CHAN] = {
+        en_us = { "DeepSeek-chan", "Damage x0.85, firing interval x0.85, blue tears#Starts with Support Ticket (pocket), 3 coins and 1 key#No player hit during a room: shared risk falls by 2 extra#Custom first-pass sprite art; design references: 上善无形 / ZipZipPipe" },
+        zh_cn = { "DeepSeek娘", "伤害×0.85，射击间隔×0.85，蓝色眼泪#初始口袋道具：人工复核工单，3硬币及1钥匙#全队无伤清房：共享风控额外-2#自定义初版贴图；角色设计参考：上善无形 / ZipZipPipe" },
+        ja_jp = { "DeepSeekちゃん", "ダメージ×0.85、射撃間隔×0.85、青い涙#初期ポケット：サポートチケット、コイン3枚と鍵1個#全員無傷で部屋をクリア：共有リスク値が追加で-2#独自の初版画像。デザイン参考：上善无形 / ZipZipPipe" },
+    },
     [Constants.Player.CLAUDE_CHAN] = {
         en_us = { "Claude-chan", "Range +1.5, Shot Speed +0.2, Speed -0.1#Starts with Ban Hammer (pocket)#Usage limit: shooting fills a meter; when full, tears deal 40% damage for 5 seconds#Design: ZipZipPipe" },
         zh_cn = { "Claude娘", "射程+1.5，弹速+0.2，移速-0.1#初始口袋道具：封号锤#用量限制：射击会累积用量，满了之后5秒内眼泪伤害降为40%#角色设计：ZipZipPipe" },
