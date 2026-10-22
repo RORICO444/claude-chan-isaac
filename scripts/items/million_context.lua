@@ -1,0 +1,33 @@
+-- 1M Context (passive)
+-- Range +5, but context rot: tears lose damage the longer they fly,
+-- down to 30% after 3 seconds.
+
+local Constants = include("scripts.constants")
+
+local MillionContext = {}
+
+local RANGE_BONUS = 5 * 40
+local ROT_FRAMES = 90
+local MIN_DAMAGE = 0.3
+
+function MillionContext:Init(mod)
+    mod:AddCallback(ModCallbacks.MC_EVALUATE_CACHE, function(_, player, flag)
+        if flag == CacheFlag.CACHE_RANGE and player:HasCollectible(Constants.Item.MILLION_CONTEXT) then
+            player.TearRange = player.TearRange + RANGE_BONUS
+        end
+    end)
+
+    mod:AddCallback(ModCallbacks.MC_POST_TEAR_UPDATE, function(_, tear)
+        local player = tear.SpawnerEntity and tear.SpawnerEntity:ToPlayer()
+        if not player or not player:HasCollectible(Constants.Item.MILLION_CONTEXT) then
+            return
+        end
+
+        local data = tear:GetData()
+        data.ccBaseDamage = data.ccBaseDamage or tear.CollisionDamage
+        local rot = math.max(MIN_DAMAGE, 1 - tear.FrameCount / ROT_FRAMES)
+        tear.CollisionDamage = data.ccBaseDamage * rot
+    end)
+end
+
+return MillionContext

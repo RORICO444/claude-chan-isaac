@@ -1,0 +1,34 @@
+-- Claude-chan: Risk Control
+-- Entry point. Each module registers its own callbacks on the shared mod object.
+
+local mod = RegisterMod("Claude-chan: Risk Control", 1)
+
+local Risk = include("scripts.risk")
+-- Registered before Risk:Init so a hit it refuses never counts as risk.
+include("scripts.items.constitution"):Init(mod, Risk)
+Risk:Init(mod)
+
+include("scripts.enemy_scaling"):Init(mod, Risk)
+include("scripts.hydra"):Init(mod, Risk)
+include("scripts.items.ban_hammer"):Init(mod, Risk)
+include("scripts.items.residential_ip"):Init(mod, Risk)
+include("scripts.items.compact"):Init(mod)
+include("scripts.items.absolutely_right"):Init(mod)
+include("scripts.items.cheap_relay"):Init(mod, Risk)
+include("scripts.items.ultrathink"):Init(mod)
+include("scripts.items.million_context"):Init(mod)
+include("scripts.items.overloaded"):Init(mod)
+include("scripts.items.silent_update"):Init(mod, Risk)
+include("scripts.items.skip_permissions"):Init(mod)
+include("scripts.items.tests_passing"):Init(mod)
+include("scripts.items.vibe_coding"):Init(mod)
+include("scripts.items.banked_reset"):Init(mod, Risk)
+include("scripts.items.subagent_swarm"):Init(mod)
+include("scripts.items.opus_mode"):Init(mod)
+include("scripts.items.hardcoded_output"):Init(mod)
+include("scripts.items.thinking_cleared"):Init(mod)
+include("scripts.enemies.relay_slime"):Init(mod, Risk)
+include("scripts.pills"):Init(mod)
+include("scripts.transformation"):Init(mod)
+include("scripts.characters.claude_chan"):Init(mod)
+include("scripts.eid"):Init()

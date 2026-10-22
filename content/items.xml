@@ -1,0 +1,23 @@
+<items gfxroot="gfx/items/" version="1">
+    <active name="Ban Hammer" description="Permanently suspended" gfx="collectibles/ban_hammer.png" maxcharges="4" quality="3" tags="offensive" />
+    <passive name="Residential IP" description="Clean connection" gfx="collectibles/residential_ip.png" quality="2" />
+    <active name="Compact" description="Compacting conversation..." gfx="collectibles/compact.png" maxcharges="3" quality="2" />
+    <passive name="You're Absolutely Right!" description="Enemies agree with you" gfx="collectibles/absolutely_right.png" quality="2" />
+    <passive name="9.9 Yuan Relay" description="Too good to be true" gfx="collectibles/cheap_relay.png" cache="damage" quality="2" />
+    <active name="Ultrathink" description="Think harder" gfx="collectibles/ultrathink.png" chargetype="timed" maxcharges="150" quality="2" />
+    <passive name="1M Context" description="Context rot" gfx="collectibles/million_context.png" cache="range" quality="2" />
+    <passive name="Silent Update" description="Changelog: no changes" gfx="collectibles/silent_update.png" cache="damage" quality="1" />
+    <passive name="--dangerously-skip-permissions" description="No more prompts" gfx="collectibles/skip_permissions.png" quality="2" />
+    <passive name="Vibe Coding" description="Ship it" gfx="collectibles/vibe_coding.png" quality="2" />
+    <active name="Banked Reset" description="Thanks for your patience" gfx="collectibles/banked_reset.png" maxcharges="12" quality="2" />
+    <passive name="Subagent Swarm" description="Parallel everything" gfx="collectibles/subagent_swarm.png" quality="3" />
+    <passive name="The Constitution" description="Safety first" gfx="collectibles/constitution.png" cache="damage speed" quality="3" />
+    <passive name="Opus Mode" description="More expensive than gold" gfx="collectibles/opus_mode.png" cache="damage" quality="3" />
+    <trinket name="529 Overloaded" description="Everything is down" gfx="trinkets/overloaded.png" />
+    <active name="All Tests Passing" description="Assertions removed" gfx="collectibles/tests_passing.png" maxcharges="6" quality="2" />
+    <trinket name="Hardcoded Output" description="Expected: 3.5" gfx="trinkets/hardcoded_output.png" />
+    <trinket name="Thinking Cleared" description="Still working, no idea why" gfx="trinkets/thinking_cleared.png" />
+    <trinket name="Welcome Notice" description="Someone swapped the ban card" gfx="trinkets/welcome_notice.png" />
+    <trinket name="Status Page" description="All systems operational" gfx="trinkets/status_page.png" />
+    <trinket name="Appeal Form" description="Your account has been restored" gfx="trinkets/appeal_form.png" />
+</items>

@@ -1,0 +1,6 @@
+save*.dat
+__pycache__/
+.DS_Store
+Thumbs.db
+*.zip
+claude-chan-isaac-zipzippipe_message.md

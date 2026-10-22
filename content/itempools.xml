@@ -1,0 +1,26 @@
+<ItemPools>
+    <Pool Name="treasure">
+        <Item Name="Ban Hammer" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+        <Item Name="Residential IP" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+        <Item Name="Compact" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+        <Item Name="Ultrathink" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+        <Item Name="1M Context" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+        <Item Name="Silent Update" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+        <Item Name="All Tests Passing" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+        <Item Name="Vibe Coding" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+        <Item Name="Banked Reset" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+    </Pool>
+    <Pool Name="angel">
+        <Item Name="You're Absolutely Right!" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+        <Item Name="The Constitution" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+    </Pool>
+    <Pool Name="devil">
+        <Item Name="9.9 Yuan Relay" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+        <Item Name="--dangerously-skip-permissions" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+        <Item Name="Subagent Swarm" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+    </Pool>
+    <Pool Name="shop">
+        <Item Name="Residential IP" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+        <Item Name="Opus Mode" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+    </Pool>
+</ItemPools>

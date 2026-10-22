@@ -1,0 +1,46 @@
+-- The Constitution (passive, angel pool)
+-- Claude's constitution (published 2026-01-21) ranks safety, then ethics, then
+-- guidelines, then helpfulness. So: safety first, the first hit you take on
+-- each floor is refused, and you get a soul heart on pickup. Helpfulness comes
+-- last: damage x0.9. And it is a long document: speed -0.1.
+
+local Constants = include("scripts.constants")
+
+local Constitution = {}
+
+local DAMAGE_MULT = 0.9
+local SPEED_DOWN = 0.1
+
+function Constitution:Init(mod, Risk)
+    mod:AddCallback(ModCallbacks.MC_POST_NEW_LEVEL, function()
+        Risk.state.constitutionBlockUsed = false
+    end)
+
+    mod:AddCallback(ModCallbacks.MC_POST_PEFFECT_UPDATE, function(_, player)
+        if not Risk.state.constitutionApplied and player:HasCollectible(Constants.Item.CONSTITUTION) then
+            Risk.state.constitutionApplied = true
+            player:AddSoulHearts(2)
+        end
+    end)
+
+    mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, function(_, entity)
+        local player = entity:ToPlayer()
+        if player and player:HasCollectible(Constants.Item.CONSTITUTION) and not Risk.state.constitutionBlockUsed then
+            Risk.state.constitutionBlockUsed = true
+            Game():GetHUD():ShowItemText("I can't help with that", "Safety comes first")
+            return false
+        end
+    end, EntityType.ENTITY_PLAYER)
+
+    mod:AddCallback(ModCallbacks.MC_EVALUATE_CACHE, function(_, player, flag)
+        if not player:HasCollectible(Constants.Item.CONSTITUTION) then return end
+
+        if flag == CacheFlag.CACHE_DAMAGE then
+            player.Damage = player.Damage * DAMAGE_MULT
+        elseif flag == CacheFlag.CACHE_SPEED then
+            player.MoveSpeed = player.MoveSpeed - SPEED_DOWN
+        end
+    end)
+end
+
+return Constitution
