@@ -245,23 +245,22 @@ def rgba(grid):
 # --------------------------------------------------------------------------
 
 def ban_hammer():
+    """Smaller silhouette so the pocket-item slot does not look oversized."""
     c = clear()
-    rrect(c, 3, 4, 28, 13, 2, "O")
-    rect(c, 3, 11, 28, 13, "o")
-    rect(c, 3, 4, 5, 13, "M")
-    rect(c, 26, 4, 28, 13, "M")
-    line(c, 6, 5, 6, 12, "#")
-    line(c, 25, 5, 25, 12, "#")
-    rrect(c, 12, 13, 19, 16, 1, "M")
-    rect(c, 14, 16, 18, 28, "W")
-    rect(c, 14, 16, 18, 17, "R")
-    line(c, 14, 21, 18, 21, "#")
-    line(c, 14, 26, 18, 26, "#")
-    rrect(c, 13, 28, 19, 29, 1, "M")
+    rrect(c, 6, 6, 25, 14, 2, "O")
+    rect(c, 6, 12, 25, 14, "o")
+    rect(c, 6, 6, 8, 14, "M")
+    rect(c, 23, 6, 25, 14, "M")
+    line(c, 9, 7, 9, 13, "#")
+    line(c, 22, 7, 22, 13, "#")
+    rrect(c, 13, 14, 18, 17, 1, "M")
+    rect(c, 14, 17, 17, 27, "W")
+    rect(c, 14, 17, 17, 18, "R")
+    line(c, 14, 21, 17, 21, "#")
+    line(c, 14, 25, 17, 25, "#")
+    rrect(c, 13, 27, 18, 28, 1, "M")
     c = sym(c)
     return c
-
-
 def residential_ip():
     c = clear()
     poly(c, [(16, 2), (2, 15), (30, 15)], "H")
