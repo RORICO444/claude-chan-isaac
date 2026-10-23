@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.5-dev
+
+Characters (owner request: normal + tainted for both; DeepSeek-chan is unrelated to IPs):
+
+- **DeepSeek-chan redesigned.** She connects directly, so a DeepSeek-only run has no IP, no risk and no risk-based difficulty (`Risk:IsActive`). New gimmicks from her own memes: **Deep Think** (深度思考, "已深度思考（用时N秒）"), **Server busy** (服务器繁忙，请稍后再试), and the pocket active **Lunch Break** (飯食ってくる / 去吃饭了). The Support Ticket stays a shop item.
+- **Tainted Claude-chan** (周限额): per-floor tear quota instead of the usage meter; pocket Banked Reset refills it. From the weekly-limit posts on X.
+- **Tainted DeepSeek-chan** (开源): every tear is forked into two weaker copies; busier servers.
+- **Claude-chan: Account age** (账号满月): +0.2 damage per floor without suspension; reset on suspension ("Banned again" / 《又封了》). From the "喜报：Claude满月啦" posts and the Bilibili song 《又封了》.
+- Tainted sprites, portraits and menu portraits are recolours of the normal art (`tools/make_tainted_art.py`); `content/gfx/characterportraitsalt.anm2` added.
+
+Sprites:
+
+- Fixed heads spilling over their 32px cells (clipped in game, leaking into neighbouring frames), Claude-chan's cut-off side-shooting head, and DeepSeek-chan's walking bodies (front-facing, arms-raised copies, so she slid sideways). `tools/fix_character_cells.py`.
+
+Items (memes on X):
+
+- **529 Overloaded:** you're left "coding manually" during an outage: you can shoot, at 50% damage (was: no shooting).
+- **Vibe Coding:** "Make no mistakes": no hit on a floor waives the next API bill.
+
+Bug fixes:
+
+- Ban Hammer bans no longer let a Relay Slime split. Thinking Cleared only drains on a room's first visit. The Constitution no longer refuses self-inflicted damage (IV Bag, Razor Blade, blood donation).
+- The runtime probe now runs on a Claude-chan run (DeepSeek-chan no longer carries the Support Ticket).
+
 ## v0.4-dev (2026-10-23)
 
 - Queue simultaneous story captions and save unseen pending chapters, preventing room/floor callbacks from silently dropping dialogue. Add collision/continue regressions and an explicit manual engine probe. Positive-risk insufficient funds, Car Battery and queued-story JSON round-trip passed in Repentance+.

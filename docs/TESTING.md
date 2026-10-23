@@ -29,13 +29,13 @@ Useful console commands: `giveitem <name>` for items, `giveitem t<name>` for tri
 | 11 | `giveitem 9.9 Yuan Relay`, change rooms | Sometimes "Model quietly downgraded"; risk +15 once | |
 | 12 | `giveitem Ultrathink`, use 3× in one room | think / megathink / ultrathink, damage goes up; resets next room | |
 | 13 | `giveitem 1M Context` | Long range; far tears do less damage | |
-| 14 | `giveitem t529 Overloaded`, fight | Every 20 s everything freezes for 2 s | |
+| 14 | `giveitem t529 Overloaded`, fight | Every 20 s enemies freeze for 2 s; you can still shoot, but those tears are weaker ("coding manually") | |
 | 15 | `giveitem Silent Update`, change floors | "Changelog: no changes", damage changes | |
 | 16 | `giveitem --dangerously-skip-permissions` | Locked doors/chests open; sometimes "rm -rf" deletes pickups | |
 | 17 | `giveitem All Tests Passing`, use with enemies alive | Doors open, enemies stay. **Do the doors stay open?** | |
 | 18 | `giveitem tHardcoded Output` | Tears always deal 3.5 | |
 | 18b | `giveitem tThinking Cleared`, change rooms | Damage +1; active item loses a charge per room | |
-| 18c | `giveitem Vibe Coding`, shoot, `stage 2` with coins | Tears get mixed effects, a few fly backwards; coins −25% on new floor | |
+| 18c | `giveitem Vibe Coding`, shoot, `stage 2` with coins | Tears get mixed effects, a few fly backwards. Got hit on the floor: coins −25% on the new floor. No hit: "Made no mistakes", no bill | |
 | 18d | As Claude-chan, hit the usage limit, then `giveitem Banked Reset` and use it | Usage meter back to 0, risk −25 | |
 | 18e | `giveitem Subagent Swarm`, shoot | 3 tears per shot in a fan; Claude-chan's meter fills about twice as fast | |
 | 18f | Console `giveitem p<n>` is awkward for modded pills; instead find pills in a run, or check they appear in the pill pool | "Cat-girl Mode" doubles fire rate at lower damage for the room; "Brb, Getting Food" heals and pauses shooting | |
@@ -60,7 +60,7 @@ What the docs can't tell us is whether the gameplay *feels* right. That's what t
 
 ## v0.4 focused checks
 
-- Start as DeepSeek-chan: 3 coins, 1 key, pocket Support Ticket; blue tears and the stated damage/fire-interval tradeoff. Test a clean room, a hit room and two DeepSeek players (shared risk bonus only once).
+- *(v0.4 DeepSeek-chan check superseded by the v0.5 redesign below.)*
 - `giveitem Support Ticket`: with 2 coins or risk 0, no coins/charge spent; with 3 coins and positive risk, spend 3 and lower risk by up to 20. Repeat with Car Battery.
 - See story chapters at run start, stage 3, stage 5, and the next room after successful review. Save and continue: completed chapters stay completed. Hide the HUD: captions hide too.
 - Inspect both custom character skins, four head directions, all movement/hurt/death poses, character select, stage/boss portraits and names. Check D4 and costume interactions. **Initial custom-art runtime checks passed in Repentance+; the complete animation/costume matrix is pending. See HANDOFF.md for exact observations.**
@@ -68,9 +68,24 @@ What the docs can't tell us is whether the gameplay *feels* right. That's what t
 - Use Support Ticket on the first floor, then reach stage 3 and stage 5: both later chapters must still appear with their approved-route dialogue. Continue after all four chapters: none should repeat.
 - Repentance+ 1.9.7.17 gameplay startup was observed on 2026-10-23. This is not evidence of a full-run pass, normal Repentance compatibility or local co-op correctness.
 
+## v0.5 focused checks (characters)
+
+| # | Test | Expected | OK? |
+|---|---|---|---|
+| C1 | Character select: press E (keyboard) / RB (controller) to switch to the tainted menu | Tainted Claude-chan (crimson) and Tainted DeepSeek-chan (teal) are listed with their menu portraits. **If they don't appear, tell Claude: modded tainted unlocking hasn't been verified in game** | |
+| C2 | Walk and shoot in all four directions as each of the 4 characters | Heads are never clipped at the edges, no stray hair bits next to heads; DeepSeek-chan faces sideways when walking sideways (no more front-facing slide) | |
+| C3 | Start as DeepSeek-chan | HUD says "Direct connection - no proxy needed" (直连・无需代理), no IP/risk line; enemies are not tougher on later floors; pocket item is Lunch Break | |
+| C4 | DeepSeek-chan: stop shooting for 3-5 s, then shoot | Big tear, HUD "Thought for N s" (已深度思考（用时N秒）) | |
+| C5 | DeepSeek-chan in a room with many enemies | Some shots don't come out, HUD "Server busy, please try again later" | |
+| C6 | Use Lunch Break | +1 red heart, enemies slowed, you can't shoot for 3 s | |
+| C7 | Tainted DeepSeek-chan: shoot | Every shot comes out as 3 tears in a fan; still no risk HUD | |
+| C8 | Co-op: Claude-chan + DeepSeek-chan | Risk HUD and IP are back (the system only sleeps when everyone is DeepSeek-chan) | |
+| C9 | Claude-chan: `stage 2`, `stage 3` without reaching risk 90 | HUD "Account age: 2 floor(s)", damage up a little; reach 90+ risk: "Banned again", age back to 0 | |
+| C10 | Tainted Claude-chan: shoot ~220 times on one floor | HUD "Weekly limit 220 / 220", "Weekly limit reached", weak grey tears; next floor resets; pocket Banked Reset refills it | |
+
 ### Repeatable manual engine probe
 
-Use only a disposable, owned stage-1 DeepSeek run. In the game debug console run:
+Use only a disposable, owned stage-1 **Claude-chan** run (since v0.5-dev; the probe puts a Support Ticket into her pocket slot, replacing the Ban Hammer for that run). The passes below were recorded on the v0.4 build in a DeepSeek-chan run, before the redesign. In the game debug console run:
 
 ```lua
 lua Isaac.RunCallback("ClaudeChan:RunRuntimeProbe")
