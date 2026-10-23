@@ -162,6 +162,39 @@ def solid(c, x, y):
     return 0 <= x < SIZE and 0 <= y < SIZE and c[y][x] != "."
 
 
+def scale_grid(c, f):
+    """Shrink the material grid about the centre (nearest neighbour)."""
+    out = clear()
+    for y in range(SIZE):
+        for x in range(SIZE):
+            sx = int(round(15.5 + (x + 0.5 - 16) / f))
+            sy = int(round(15.5 + (y + 0.5 - 16) / f))
+            if 0 <= sx < SIZE and 0 <= sy < SIZE:
+                out[y][x] = c[sy][sx]
+    return out
+
+
+def clean_edges(g):
+    """Replace ink pixels on the silhouette border with their material, so the
+    regenerated outline stays 1px after scaling."""
+    from collections import Counter
+    out = [row[:] for row in g]
+    for y in range(SIZE):
+        for x in range(SIZE):
+            if g[y][x] != "#":
+                continue
+            border = any(not (0 <= x + dx < SIZE and 0 <= y + dy < SIZE) or g[y + dy][x + dx] == "."
+                         for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+            if not border:
+                continue
+            votes = Counter(g[y + dy][x + dx]
+                            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1), (-1, -1), (1, 1), (-1, 1), (1, -1))
+                            if 0 <= x + dx < SIZE and 0 <= y + dy < SIZE and g[y + dy][x + dx] not in (".", "#"))
+            if votes:
+                out[y][x] = votes.most_common(1)[0][0]
+    return out
+
+
 def render(c):
     """Fill, one diagonal light pass, shadow on the bottom/right, ink outline."""
     seen = [[False] * SIZE for _ in range(SIZE)]
@@ -596,6 +629,16 @@ SYMMETRIC = {"ban_hammer", "compact", "tests_passing", "constitution",
              "opus_mode", "overloaded", "hardcoded_output", "welcome_notice",
              "status_page", "appeal_form"}
 
+# icons that filled too much of the 32x32 cell, shrunk to vanilla proportions
+SHRINK = {
+    "residential_ip": 0.78, "compact": 0.78, "absolutely_right": 0.78,
+    "million_context": 0.78, "tests_passing": 0.78, "constitution": 0.78,
+    "overloaded": 0.78, "status_page": 0.78, "appeal_form": 0.78,
+    "welcome_notice": 0.78, "support_ticket": 0.78,
+    "skip_permissions": 0.82, "opus_mode": 0.80, "ultrathink": 0.82,
+    "banked_reset": 0.82, "hardcoded_output": 0.85,
+}
+
 TRINKETS = {"overloaded", "hardcoded_output", "thinking_cleared",
             "welcome_notice", "status_page", "appeal_form"}
 ORDER = list(SPRITES)
@@ -630,7 +673,10 @@ def main():
 
     grids = []
     for name in ORDER:
-        grid = render(SPRITES[name]())
+        raw = SPRITES[name]()
+        if name in SHRINK:
+            raw = clean_edges(scale_grid(raw, SHRINK[name]))
+        grid = render(raw)
         if name in PIXEL_SYMMETRIC:
             grid = [row[:] for row in grid]
             for y in range(SIZE):
@@ -647,6 +693,8 @@ def main():
         bad = 0
         for name in ORDER:
             g = SPRITES[name]()
+            if name in SHRINK:
+                g = clean_edges(scale_grid(g, SHRINK[name]))
             diff = sum(1 for y in range(SIZE) for x in range(SIZE // 2)
                        if (g[y][x] != ".") != (g[y][SIZE - 1 - x] != "."))
             if name in SYMMETRIC and diff:
