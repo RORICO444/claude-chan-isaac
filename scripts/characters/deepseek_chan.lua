@@ -13,6 +13,8 @@
 --   "Server busy" (服务器繁忙): the more enemies in the room, the more often
 --   a tear simply doesn't go out (3% per enemy, at most 25%).
 --   Pocket item: Lunch Break (去吃饭了). Damage x0.9, blue tears.
+--   Slacking off (摸鱼, after the viral 10.19 Bilibili video "大肥鱼成精了！在摸鱼！"):
+--   standing still for 5 s in a cleared room recharges Lunch Break by one.
 --
 -- Tainted - "Open Source" (开源):
 --   Every tear is forked: two extra copies at ±12° with 50% damage, because
@@ -33,6 +35,9 @@ local FORK_SPREAD = 12
 local FORK_DAMAGE = 0.5
 local BUSY = { normal = { per = 0.03, max = 0.25 }, tainted = { per = 0.05, max = 0.4 } }
 local MESSAGE_FRAMES = 60
+local SLACK_FRAMES = 150          -- 5 s standing still in a cleared room
+local SLACK_SPEED = 0.1
+local LUNCH_MAX_CHARGE = 6
 
 local NORMAL_COLOR = Color(0.35, 0.65, 1, 1, 0, 0, 0)
 local TAINTED_COLOR = Color(0.45, 1, 0.95, 1, 0, 0, 0)
@@ -115,6 +120,25 @@ function DeepSeek:Init(mod)
         end
     end)
 
+    -- 摸鱼: idle in a cleared room refills the pocket Lunch Break, one charge at a time.
+    mod:AddCallback(ModCallbacks.MC_POST_PEFFECT_UPDATE, function(_, player)
+        if kind(player) ~= "normal" then return end
+        local s = state(player)
+        local slot = ActiveSlot.SLOT_POCKET
+        if not Game():GetRoom():IsClear() or player.Velocity:Length() > SLACK_SPEED
+            or player:GetActiveItem(slot) ~= Constants.Item.LUNCH_BREAK
+            or player:GetActiveCharge(slot) >= LUNCH_MAX_CHARGE then
+            s.slack = 0
+            return
+        end
+        s.slack = (s.slack or 0) + 1
+        if s.slack >= SLACK_FRAMES then
+            s.slack = 0
+            player:SetActiveCharge(player:GetActiveCharge(slot) + 1, slot)
+            say(s, "slacking")
+        end
+    end)
+
     mod:AddCallback(ModCallbacks.MC_POST_RENDER, function()
         if not Game():GetHUD():IsVisible() then return end
         local now = Game():GetFrameCount()
@@ -123,7 +147,7 @@ function DeepSeek:Init(mod)
             local s = kind(player) and player:GetData().ccDeepSeek
             if s and s.message and now < s.messageUntil then
                 local y = Isaac.GetScreenHeight() - 40 - i * 12
-                local text = s.message == "busy" and HudText:T("busy") or HudText:T("thought", s.value)
+                local text = s.message == "thought" and HudText:T("thought", s.value) or HudText:T(s.message)
                 HudText:Draw(text, 50, y, 0.45, 0.75, 1, 1)
             end
         end

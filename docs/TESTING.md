@@ -78,6 +78,7 @@ What the docs can't tell us is whether the gameplay *feels* right. That's what t
 | C4 | DeepSeek-chan: stop shooting for 3-5 s, then shoot | Big tear, HUD "Thought for N s" (已深度思考（用时N秒）) | |
 | C5 | DeepSeek-chan in a room with many enemies | Some shots don't come out, HUD "Server busy, please try again later" | |
 | C6 | Use Lunch Break | +1 red heart, enemies slowed, you can't shoot for 3 s | |
+| C6b | DeepSeek-chan: clear a room, then stand still ~5 s | HUD "Slacking off... Lunch Break +1" (摸鱼中……), pocket charge +1; nothing happens while moving or in a fight | |
 | C7 | Tainted DeepSeek-chan: shoot | Every shot comes out as 3 tears in a fan; still no risk HUD | |
 | C8 | Co-op: Claude-chan + DeepSeek-chan | Risk HUD and IP are back (the system only sleeps when everyone is DeepSeek-chan) | |
 | C9 | Claude-chan: `stage 2`, `stage 3` without reaching risk 90 | HUD "Account age: 2 floor(s)", damage up a little; reach 90+ risk: "Banned again", age back to 0 | |

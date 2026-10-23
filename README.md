@@ -14,7 +14,7 @@ Every floor hands you a random proxy IP. The more people share it, the higher yo
 |---|---|
 | **Claude-chan** (playable) | Range +1.5 (long context window), Shot Speed +0.2, Speed −0.1, 2 red + 1 soul heart, orange tears. Starts with **Ban Hammer** as a pocket item. **Usage limit:** every tear fills a usage meter that drains slowly; when it's full, her tears deal 40% damage for 5 seconds. **Account age (账号满月):** +0.2 damage for every floor reached without being Suspended (max +1.6); a suspension resets it ("Banned again" / 又封了). *Custom orange-haired sprite atlas and portraits; animation polish is in progress.* |
 | **Tainted Claude-chan** (裏 / playable) | **Weekly limit (周限额):** instead of the usage meter, 220 tears per floor; past it, tears deal 25% until the next floor. Damage ×1.25, Range +1.5, Shot Speed +0.2. Starts with pocket **Banked Reset**, which refills the quota. Crimson "banned" recolour of her sprites. |
-| **DeepSeek-chan** (playable) | **Direct connection (直连):** she needs no proxy, so in a DeepSeek-only run there is no IP, no risk and no risk-based difficulty. **Deep Think (深度思考):** not shooting builds up to 5 s of thought; the next tear deals up to ×2 and the HUD reads "Thought for N s". **Server busy (服务器繁忙):** the more enemies in the room, the more often a tear doesn't go out (3% per enemy, max 25%). Starts with pocket **Lunch Break**; damage ×0.9, blue tears. |
+| **DeepSeek-chan** (playable) | **Direct connection (直连):** she needs no proxy, so in a DeepSeek-only run there is no IP, no risk and no risk-based difficulty. **Deep Think (深度思考):** not shooting builds up to 5 s of thought; the next tear deals up to ×2 and the HUD reads "Thought for N s". **Server busy (服务器繁忙):** the more enemies in the room, the more often a tear doesn't go out (3% per enemy, max 25%). **Slacking off (摸鱼):** standing still for 5 s in a cleared room recharges Lunch Break by one. Starts with pocket **Lunch Break**; damage ×0.9, blue tears. |
 | **Tainted DeepSeek-chan** (裏 / playable) | Direct connection too. **Open Source (开源):** every tear is forked into two extra tears at ±12° (50% damage). Busier servers: 5% per enemy, max 40%. Damage ×0.8. Teal recolour of her sprites. |
 | **Lunch Break** (DeepSeek-chan's pocket active, 6 charges) | "飯食ってくる / 去吃饭了": heals one red heart and slows every enemy for 3 s, but you stop shooting for 3 s. |
 | **The Appeal Queue** | Four short, localised story captions during a run; chapter progress survives save/continue. |
@@ -135,7 +135,7 @@ Code: [MIT](LICENSE). Character designs and character art are **not** MIT: credi
 
 - **Claude娘**（可操作角色）：射程+1.5（长上下文）、弹速+0.2、移速−0.1，初始口袋道具为封号锤。**用量限制**：每发眼泪都会增加用量，用满后5秒内眼泪伤害降为40%。**账号满月**：每层未被封禁伤害+0.2（最多+1.6），被封禁就清零（又封了）。角色形象设计：[ZipZipPipe](https://space.bilibili.com/4168597)（署名・非商用）。
 - **里Claude娘**（可操作角色）：**周限额**——没有用量条，每层只能射220发，超过后到下一层前伤害降为25%；伤害×1.25，初始口袋道具为储存的重置（可恢复周限额）。
-- **DeepSeek娘**（可操作角色）：**直连，无需代理**——单人时没有IP、没有风控，也没有风控带来的难度。**深度思考**：不射击时积累思考（最多5秒），下一发伤害最高×2，显示"已深度思考（用时N秒）"。**服务器繁忙**：敌人越多，眼泪越常发不出去（每个敌人3%，最高25%）。初始口袋道具：去吃饭了。设计：上善无形 / ZipZipPipe。
+- **DeepSeek娘**（可操作角色）：**直连，无需代理**——单人时没有IP、没有风控，也没有风控带来的难度。**深度思考**：不射击时积累思考（最多5秒），下一发伤害最高×2，显示"已深度思考（用时N秒）"。**服务器繁忙**：敌人越多，眼泪越常发不出去（每个敌人3%，最高25%）。**摸鱼**：在已清理的房间站着不动5秒，去吃饭了充能+1。初始口袋道具：去吃饭了。设计：上善无形 / ZipZipPipe。
 - **里DeepSeek娘**（可操作角色）：同样直连。**开源**：每发眼泪都会被fork出2发±12°的眼泪（50%伤害）；服务器更容易繁忙（最高40%）；伤害×0.8。
 - **去吃饭了**（DeepSeek娘的口袋主动，6充能）：回复1颗红心，所有敌人减速3秒，但3秒内无法射击。
 - **封号锤**（主动，4充能）：封禁房间内所有非Boss敌人，Boss受到60点伤害，被封禁的敌人不会复活。
@@ -176,7 +176,7 @@ Code: [MIT](LICENSE). Character designs and character art are **not** MIT: credi
 
 - **Claudeちゃん**（プレイアブル）：射程+1.5（ロングコンテキスト）、弾速+0.2、移動速度−0.1、初期ポケットアイテムはBANハンマー。**利用上限**：涙を撃つたびに使用量が溜まり、満タンになると5秒間涙のダメージが40%に下がる。**アカウント年齢**：停止されずに進んだフロアごとにダメージ+0.2（最大+1.6）、停止されるとリセット（又封了）。キャラクターデザイン：[ZipZipPipe](https://space.bilibili.com/4168597)（クレジット表記・非営利）。
 - **裏Claudeちゃん**（プレイアブル）：**週間上限（周限额）**。使用量メーターの代わりに1フロア220発まで、超えると次のフロアまでダメージ25%。ダメージ×1.25、初期ポケットはバンク済みリセット（上限を回復）。
-- **DeepSeekちゃん**（プレイアブル）：**直結・プロキシ不要**。1人プレイではIPも風控値も、それによる難易度上昇もない。**深度思考**：撃たずにいると最大5秒分の思考がたまり、次の一発が最大2倍。**サーバー混雑**：敵が多いほど涙が出ないことがある（敵1体につき3%、最大25%）。初期ポケット：飯食ってくる。デザイン：上善无形 / ZipZipPipe。
+- **DeepSeekちゃん**（プレイアブル）：**直結・プロキシ不要**。1人プレイではIPも風控値も、それによる難易度上昇もない。**深度思考**：撃たずにいると最大5秒分の思考がたまり、次の一発が最大2倍。**サーバー混雑**：敵が多いほど涙が出ないことがある（敵1体につき3%、最大25%）。**サボり（摸鱼）**：クリア済みの部屋で5秒じっとしていると飯食ってくるのチャージ+1。初期ポケット：飯食ってくる。デザイン：上善无形 / ZipZipPipe。
 - **裏DeepSeekちゃん**（プレイアブル）：こちらも直結。**オープンソース**：涙が±12°に2発フォークされる（ダメージ50%）。サーバー混雑が起きやすい（最大40%）。ダメージ×0.8。
 - **飯食ってくる**（DeepSeekちゃんのポケットアクティブ、6チャージ）：赤ハート1つ回復、すべての敵を3秒スロウ。ただし3秒間撃てない。
 - **BANハンマー**（アクティブ、4チャージ）：部屋内のボス以外の敵をすべてBAN。ボスには60ダメージ。BANされた敵は復活しない。

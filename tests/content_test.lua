@@ -27,6 +27,7 @@ function Game() return {
     GetSeeds = function() return { GetStartSeed = function() return seed end } end,
     GetNumPlayers = function() return 2 end,
     GetFrameCount = function() return FRAME or 0 end,
+    GetRoom = function() return { IsClear = function() return ROOMCLEAR ~= false end } end,
     GetHUD = function() return {
         IsVisible = function() return true end,
         ShowItemText = function(_, title) messages[#messages + 1] = title end,
@@ -99,7 +100,23 @@ local fork = tear(p); fire("MC_POST_FIRE_TEAR", fork)
 assert(#spawned == 2 and spawned[1].CollisionDamage == 2 and spawned[1].velocity == -12, "tainted forks two 50% tears")
 fire("MC_EVALUATE_CACHE", p, CacheFlag.CACHE_DAMAGE); assert(math.abs(p.Damage - 9 * 0.8) < 1e-9)
 p.kind = 42
-print("OK: DeepSeek-chan Deep Think, server busy, pocket item and tainted forks")
+-- 摸鱼: standing still 5 s in a cleared room recharges the pocket Lunch Break by one.
+ActiveSlot.SLOT_POCKET = 2
+p.Velocity = { Length = function() return 0 end }
+p.charge = 2
+p.GetActiveItem = function() return 801 end
+p.GetActiveCharge = function(pl) return pl.charge end
+p.SetActiveCharge = function(pl, c) pl.charge = c end
+ROOMCLEAR = false
+for _ = 1, 200 do fire("MC_POST_PEFFECT_UPDATE", p) end
+assert(p.charge == 2, "no slacking during a fight")
+ROOMCLEAR = true
+for _ = 1, 149 do fire("MC_POST_PEFFECT_UPDATE", p) end
+assert(p.charge == 2, "not yet 5 s")
+fire("MC_POST_PEFFECT_UPDATE", p); assert(p.charge == 3, "5 s of slacking: +1 charge")
+p.charge = 6; for _ = 1, 300 do fire("MC_POST_PEFFECT_UPDATE", p) end
+assert(p.charge == 6, "never above the item's 6 charges")
+print("OK: DeepSeek-chan Deep Think, server busy, slacking off, pocket item and tainted forks")
 
 callbacks = {}
 local seeded

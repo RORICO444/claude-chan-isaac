@@ -4,7 +4,7 @@
 
 Characters (owner request: normal + tainted for both; DeepSeek-chan is unrelated to IPs):
 
-- **DeepSeek-chan redesigned.** She connects directly, so a DeepSeek-only run has no IP, no risk and no risk-based difficulty (`Risk:IsActive`). New gimmicks from her own memes: **Deep Think** (深度思考, "已深度思考（用时N秒）"), **Server busy** (服务器繁忙，请稍后再试), and the pocket active **Lunch Break** (飯食ってくる / 去吃饭了). The Support Ticket stays a shop item.
+- **DeepSeek-chan redesigned.** She connects directly, so a DeepSeek-only run has no IP, no risk and no risk-based difficulty (`Risk:IsActive`). New gimmicks from her own memes: **Deep Think** (深度思考, "已深度思考（用时N秒）"), **Server busy** (服务器繁忙，请稍后再试), and the pocket active **Lunch Break** (飯食ってくる / 去吃饭了), recharged by **slacking off** (摸鱼: 5 s standing still in a cleared room; from the viral Bilibili video 《大肥鱼成精了！在摸鱼！》). The Server busy mechanic also matches DeepSeek's 2026-10-15 global outage. The Support Ticket stays a shop item.
 - **Tainted Claude-chan** (周限额): per-floor tear quota instead of the usage meter; pocket Banked Reset refills it. From the weekly-limit posts on X.
 - **Tainted DeepSeek-chan** (开源): every tear is forked into two weaker copies; busier servers.
 - **Claude-chan: Account age** (账号满月): +0.2 damage per floor without suspension; reset on suspension ("Banned again" / 《又封了》). From the "喜报：Claude满月啦" posts and the Bilibili song 《又封了》.
