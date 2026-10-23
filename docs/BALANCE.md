@@ -48,3 +48,7 @@ These are from memory (the wiki is blocked from this environment), except Haemol
 1. Enemy HP cap: ×3 → ×2.
 2. Subagent Swarm: 50% → 40% damage.
 3. Claude-chan's usage limit: if boss fights feel bad, drop `USAGE_PER_TEAR` from 4 to 3.
+# v0.4 prototype additions
+
+- **Support Ticket:** shop active, six room charges, three coins for risk -20. A failed use preserves both coins and charge. Car Battery does not charge twice. Unlike the automatic Appeal Form trinket, this requires a manual decision before suspension.
+- **DeepSeek-chan:** two red hearts, one soul heart, three coins, one key; pocket Support Ticket. Damage x0.85 and firing interval x0.85 approximately preserve basic tear DPS while encouraging safe rooms. A room without any player taking damage reduces shared risk by two extra points, once per team. Balance has not been evaluated over a full run.

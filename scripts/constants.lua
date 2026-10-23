@@ -15,6 +15,7 @@ Constants.Item = {
     BANKED_RESET = Isaac.GetItemIdByName("Banked Reset"),
     SUBAGENT_SWARM = Isaac.GetItemIdByName("Subagent Swarm"),
     CONSTITUTION = Isaac.GetItemIdByName("The Constitution"),
+    SUPPORT_TICKET = Isaac.GetItemIdByName("Support Ticket"),
     OPUS_MODE = Isaac.GetItemIdByName("Opus Mode"),
 }
 
@@ -33,6 +34,7 @@ Constants.Pill = {
 }
 
 Constants.Player = {
+    DEEPSEEK_CHAN = Isaac.GetPlayerTypeByName("DeepSeek-chan", false),
     CLAUDE_CHAN = Isaac.GetPlayerTypeByName("Claude-chan", false),
 }
 

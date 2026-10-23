@@ -8,11 +8,13 @@ Every floor hands you a random proxy IP. The more people share it, the higher yo
 
 [中文](#中文) · [日本語](#日本語)
 
-## Features (v0.3-dev)
+## Features (v0.4-dev)
 
 | | |
 |---|---|
-| **Claude-chan** (playable) | Range +1.5 (long context window), Shot Speed +0.2, Speed −0.1, 2 red + 1 soul heart, orange tears. Starts with **Ban Hammer** as a pocket item. **Usage limit:** every tear fills a usage meter that drains slowly; when it's full, her tears deal 40% damage for 5 seconds. *(Placeholder art for now — she looks like Isaac until the sprites are drawn.)* |
+| **Claude-chan** (playable) | Range +1.5 (long context window), Shot Speed +0.2, Speed −0.1, 2 red + 1 soul heart, orange tears. Starts with **Ban Hammer** as a pocket item. **Usage limit:** every tear fills a usage meter that drains slowly; when it's full, her tears deal 40% damage for 5 seconds. *Custom orange-haired sprite atlas and portraits; animation polish is in progress.* |
+| **DeepSeek-chan** (playable) | Blue-haired custom sprite atlas; damage x0.85, firing interval x0.85. Starts with pocket **Support Ticket**, 3 coins and 1 key. A team-wide no-hit room clear reduces shared risk by 2 extra points. |
+| **The Appeal Queue** | Four short, localised story captions during a run; chapter progress survives save/continue. |
 | **Risk score** | 0–100. At **90+ your account is Suspended**: damage ×0.75 until risk drops. Each floor rolls an IP: crowded relay IPs add more risk. Getting hit +1, clearing a room without a hit −1. Shown at the bottom-left of the HUD. |
 | **Enemy scaling** | Enemy HP ×1 at risk 0, up to ×3 at risk 100. |
 | **Hydra accounts** | From risk 40 on, a killed enemy may respawn once (tinted red), from 10% up to 50%. |
@@ -44,9 +46,21 @@ Every floor hands you a random proxy IP. The more people share it, the higher yo
 
 Supports [External Item Descriptions](https://steamcommunity.com/sharedfiles/filedetails/?id=836319872) in English, Simplified Chinese and Japanese.
 
+## New in v0.4-dev
+
+- **Support Ticket** / **人工复核工单** / **サポートチケット**: six-charge shop active; pay 3 coins to reduce risk by 20. Failed uses keep the charge, and Car Battery does not bill twice.
+- **DeepSeek-chan** / **DeepSeek娘** / **DeepSeekちゃん**: a welcoming counterpart to Claude-chan, with blue tears, faster firing at lower damage, and extra risk recovery for no-hit rooms.
+- **The Appeal Queue** / **申诉队列** / **異議申し立ての列**: four optional-to-read captions in English, Chinese and Japanese. This original fan story does not replace vanilla cutscenes.
+- Both characters now have custom generated sprite atlases, portraits, name images and character-selection assets. These are a first art pass, with animation and costume-interaction checks still required.
+
+See [docs/HANDOFF.md](docs/HANDOFF.md) for exact validation limits and [docs/STORY.md](docs/STORY.md) for the next collaboration slice.
+
 ## Credits
 
 - **Claude-chan character design:** [ZipZipPipe](https://space.bilibili.com/4168597) ([Pixiv《AI娘化》](https://www.pixiv.net/artworks/148186519), [《大AI和小AI们》](https://www.bilibili.com/video/BV1tE9XBbErS/)). Used non-commercially with credit, per the author's terms.
+
+- **DeepSeek-chan design references:** 上善无形 and ZipZipPipe.
+- **32x32 item icon set:** RORICO444, PR #2. Character bitmaps in this development pass were generated with imagegen; see [art provenance](docs/ART_GENERATION.md).
 
 ## Install for development
 

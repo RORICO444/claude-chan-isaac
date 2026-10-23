@@ -4,7 +4,7 @@ Do this **after** the in-game test (`docs/TESTING.md`) passes.
 
 ## Before uploading
 
-- [ ] **Permission:** ZipZipPipe replied OK (or at least didn't object). Record the reply in `resources/ART_LICENSE.md`.
+- [ ] **Permission:** Record an explicit permission or applicable redistribution license for each character design and source asset. Record the evidence in `resources/ART_LICENSE.md`.
 - [ ] **mySh1_loRis:** messaged about 《克劳德的结合》, so the two projects don't clash (see `docs/IDEAS.md`).
 - [ ] **Art:** Claude-chan no longer uses the vanilla Isaac sprites, or the description clearly says "placeholder art".
 - [ ] **Cover:** `thumb.png` (512×512) replaced with real Claude-chan art. The current one is a placeholder Ban Hammer.
@@ -21,7 +21,7 @@ Do this **after** the in-game test (`docs/TESTING.md`) passes.
 
 ## Workshop description (draft)
 
-> **Claude-chan: Risk Control** — a parody mod. Every floor hands you a random proxy IP: the more people share it, the higher your 风控值 (risk score), and the tougher the enemies get. Play as **Claude-chan**, armed with a Ban Hammer and a usage limit, and find 14 meme items like *Ultrathink*, *9.9 Yuan Relay*, *--dangerously-skip-permissions* and *529 Overloaded*.
+> **Claude-chan: Risk Control** — a parody mod. Every floor hands you a random proxy IP: the more people share it, the higher your 风控值 (risk score), and the tougher the enemies get. Play as **Claude-chan**, armed with a Ban Hammer and a usage limit, and find 16 meme collectibles like *Ultrathink*, *9.9 Yuan Relay*, *--dangerously-skip-permissions* and *529 Overloaded*.
 >
 > Character design by **ZipZipPipe** (Bilibili / Pixiv), used non-commercially with credit. DeepSeek-chan references: original OC by **上善无形**. Fan work, free, non-commercial; not affiliated with or endorsed by Anthropic or any other company.
 >

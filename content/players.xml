@@ -1,15 +1,18 @@
 <!--
-    Placeholder art: until the real Claude-chan sprites exist, the skin and
-    portraits point at the vanilla Isaac files. See docs/ART_SPEC.md for the
-    files that will replace them.
+    Custom generated first-pass character atlases and UI assets.
+    See docs/ART_GENERATION.md for provenance and remaining animation checks.
 -->
 <players root="gfx/characters/costumes/" portraitroot="gfx/ui/stage/" nameimageroot="gfx/ui/boss/" bigportraitroot="gfx/ui/stage/">
     <player name="Claude-chan"
-            skin="character_001_isaac.png"
+            skin="character_claudechan.png"
             skinColor="-1"
             hp="4" armor="2" black="0"
             coins="0" bombs="1" keys="0"
-            portrait="PlayerPortrait_01_Isaac.png"
-            bigportrait="PlayerPortraitBig_01_Isaac.png"
-            nameimage="PlayerName_01_Isaac.png" />
+            portrait="playerportrait_claudechan.png"
+            bigportrait="playerportrait_claudechan.png"
+            nameimage="playername_claudechan.png" />
+    <player name="DeepSeek-chan" skin="character_deepseekchan.png" skinColor="-1"
+            hp="4" armor="2" black="0" coins="3" bombs="0" keys="1"
+            portrait="playerportrait_deepseekchan.png" bigportrait="playerportrait_deepseekchan.png"
+            nameimage="playername_deepseekchan.png" />
 </players>

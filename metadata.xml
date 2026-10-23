@@ -3,6 +3,6 @@
     <name>Claude-chan: Risk Control</name>
     <directory>claude-chan-isaac</directory>
     <description>A parody mod. Every floor hands you a random proxy IP - the more people share it, the higher your risk score, and the tougher the enemies get. Play as Claude-chan (character design by ZipZipPipe, used non-commercially with credit). Fan work, not affiliated with Anthropic.</description>
-    <version>0.2.0</version>
+    <version>0.4.0-dev</version>
     <visibility>Private</visibility>
 </metadata>
