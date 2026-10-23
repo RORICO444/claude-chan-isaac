@@ -42,6 +42,7 @@ EntityType = { ENTITY_PLAYER = 1, ENTITY_TEAR = 2, ENTITY_PROJECTILE = 9, ENTITY
 CacheFlag = { CACHE_DAMAGE = 1, CACHE_RANGE = 2, CACHE_SHOTSPEED = 4, CACHE_SPEED = 8, CACHE_TEARCOLOR = 16, CACHE_FIREDELAY = 32, CACHE_FLYING = 64 }
 ActiveSlot = { SLOT_PRIMARY = 0, SLOT_POCKET = 2 }
 EntityFlag = { FLAG_FRIENDLY = 1 }
+DamageFlag = { DAMAGE_RED_HEARTS = 32, DAMAGE_IV_BAG = 4096, DAMAGE_FAKE = 2097152 }
 function Color(...) return { ... } end
 SoundEffect = { SOUND_POWERUP_SPEWER = 132 }
 function SFXManager() return { Play = function(_, id) print("  SFX:", id) end } end
@@ -121,7 +122,7 @@ function Game()
         } end,
         ShakeScreen = function() end,
         GetFrameCount = function() return FRAME end,
-        GetRoom = function() return { GetDoor = function(_, slot) return DOORS[slot] end, SetClear = function(_, v) ROOMCLEAR = v end, IsClear = function() return ROOMCLEAR end, GetFrameCount = function() return ROOMFRAME end, GetCenterPos = function() return { 0, 0 } end } end,
+        GetRoom = function() return { IsFirstVisit = function() return FIRSTVISIT ~= false end, GetDoor = function(_, slot) return DOORS[slot] end, SetClear = function(_, v) ROOMCLEAR = v end, IsClear = function() return ROOMCLEAR end, GetFrameCount = function() return ROOMFRAME end, GetCenterPos = function() return { 0, 0 } end } end,
     }
 end
 
@@ -438,4 +439,41 @@ fire("MC_POST_PEFFECT_UPDATE", nil, player)
 print("  after 20 tears: coins", player.coins, "damage", player.Damage)
 player.coins = 1; fire("MC_POST_PEFFECT_UPDATE", nil, player)
 print("  picked up a coin: damage", player.Damage)
+
+print("== bugfix regressions")
+do
+    -- Constitution must not refuse self-inflicted damage, and must keep its block.
+    for k in pairs(playerItems) do playerItems[k] = nil end
+    playerItems[746] = true
+    RISK_REF.state.constitutionBlockUsed = false
+    local function hit(flags)
+        for _, cb in ipairs(callbacks) do
+            if cb.id == "MC_ENTITY_TAKE_DMG" and (cb.param == nil or cb.param == 1) then
+                local r = cb.fn(mod, player, 1, flags, {}, 0)
+                if r ~= nil then return r end
+            end
+        end
+    end
+    assert(hit(DamageFlag.DAMAGE_IV_BAG) == nil, "IV Bag damage must go through")
+    assert(RISK_REF.state.constitutionBlockUsed == false, "self-damage must not use the block")
+    assert(hit(0) == false, "a real hit is still refused")
+    print("  constitution ignores self-damage: ok")
+
+    -- A banned Relay Slime must not split.
+    local before = #SPAWNED
+    local slime = makeNpc(false); slime:GetData().ccRelaySlime = 0; slime:GetData().ccBanned = true
+    fire("MC_POST_ENTITY_KILL", nil, slime)
+    assert(#SPAWNED == before, "banned slime split")
+    print("  banned relay slime does not split: ok")
+
+    -- Thinking Cleared only drains a charge on a room's first visit.
+    playerItems[746] = nil
+    HELD_TRINKET = 192; player.charge = 4
+    FIRSTVISIT = false; fire("MC_POST_NEW_ROOM")
+    assert(player.charge == 4, "revisit drained a charge")
+    FIRSTVISIT = true; fire("MC_POST_NEW_ROOM")
+    assert(player.charge == 3, "first visit should drain one charge")
+    HELD_TRINKET = nil
+    print("  thinking cleared drains only on first visits: ok")
+end
 print("OK")
