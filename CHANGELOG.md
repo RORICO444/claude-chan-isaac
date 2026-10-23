@@ -2,20 +2,16 @@
 
 ## v0.4-dev (2026-10-23)
 
-- Corrected three rear-head sprite cells after offline visual review: Claude no longer faces forward in her back-facing cells, and DeepSeek's missing back hair is filled. All other atlas pixels are preserved; live animation QA remains pending.
-
-- Early appeal success no longer suppresses later story chapters. Stages 3 and 5 have approved-route dialogue in all three languages; save/continue still shows each chapter once.
-
 - Reviewed and merged PR #1 (collaboration checks) and PR #2 (RORICO444's 21 item/trinket icons).
-- Added Support Ticket, a six-charge manual appeal costing three coins for risk -20, with failure and Car Battery guards. Inspired by support-queue and mistaken-ban complaints, not a claim about a real support policy.
-- Added playable DeepSeek-chan with blue tears, a firing-interval/damage tradeoff, and team-wide no-hit risk recovery.
-- Added The Appeal Queue, four original story captions in en/zh/ja, saved once per chapter per run.
-- Added custom character atlases, portraits, name images and character-menu assets for Claude and DeepSeek. First-pass art still needs in-game animation and costume interaction QA.
-- Seed Silent Update before every floor roll, including the engine's pre-start NEW_LEVEL callback; continued runs retain their stored multiplier.
-- Fixed Python detection/UTF-8 handling on Windows. Added deterministic sprite, character asset, animation frame-bound and item-pool validation, plus boundary/lifecycle tests.
+- Added Support Ticket: six charges, three coins for risk -20, with failed-use and Car Battery guards.
+- Added playable DeepSeek-chan with blue tears, a firing-interval/damage tradeoff, pocket Support Ticket and team-wide no-hit risk recovery.
+- Added The Appeal Queue: four original saved captions in en/zh/ja. Early approvals preserve later chapters with approved-route dialogue.
+- Added generated Claude/DeepSeek character atlases, portraits, names and menu assets. Runtime fixes preserve faces with Reactions Port Pack, map DeepSeek clothing correctly and fit repaired Claude rear-head/body cutouts into engine cells.
+- Moved story captions above the Loadout prompt and away from the upper EID text.
+- Seed Silent Update before each floor roll, including pre-start NEW_LEVEL; continue preserves its stored multiplier.
+- Fixed Windows Python detection and UTF-8 handling. Checks cover deterministic sprites, character assets, animation bounds, pools and gameplay boundaries.
 
-Validation: all offline checks pass. Repentance+ 1.9.7.17 loaded the gameplay prototype and displayed DeepSeek's pocket item and the story. The owner stopped Computer Use before final character-art runtime checks; see HANDOFF.
-
+Validation: required offline checks and initial Repentance+ 1.9.7.17 runtime checks passed, including both custom skins, corrected Claude rear hair, actual ticket use/refusal, an approved-route chapter, subtitle placement and continued runs. Tests were muted and the game was closed normally. Full animation/costume coverage, ordinary Repentance, co-op and a full run remain open; see HANDOFF.md. Character-art permissions and Workshop publication remain separate release requirements.
 
 ## v0.3-dev (unreleased, not yet tested in game)
 
@@ -65,5 +61,3 @@ Also: in-game test checklist (`docs/TESTING.md`), goals (`docs/GOALS.md`).
 - Risk score and random proxy IP per floor, enemy HP scaling, hydra respawns.
 - **Ban Hammer** (active) and **Residential IP** (passive).
 - EID descriptions in English, Chinese and Japanese.
-
-- Runtime art fixes: preserve custom faces with Reactions Port Pack, remap DeepSeek clothing, fit repaired Claude rear heads and headless body frames into engine cells, and move captions above the Loadout prompt.

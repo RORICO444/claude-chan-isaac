@@ -12,7 +12,7 @@ The owner wants new item and character ideas implemented with corresponding artw
 | Corresponding art | Claude/DeepSeek atlases, portraits, names and selection assets installed | Front/rear game views and Continue portraits observed; complete animation/costume/UI matrix remains |
 | Story | Four saved chapters and early-approval route variants in en/zh/ja | Subtitle/Loadout separation and no repeat of chapter one on continue observed; remaining chapters/languages remain |
 | Base-game compatibility | Repentance+ 1.9.7.17 loaded the corrected art build; Lua 5.3 and offline checks pass | Normal Repentance, local co-op, full-run and comprehensive costume checks remain open |
-| GitHub/local synchronisation | Feature work is in draft PR #3; installed files match reviewed source | Keep branch commits and installed assets matched after each update |
+| GitHub/local synchronisation | Feature work is tracked in PR #3; installed files match reviewed source | Keep branch commits and installed assets matched after each update |
 | Claude collaboration/handoff | `HANDOFF.md` records implementation, tests, gaps and next content ideas | No independent Claude review has occurred; next session should start from the handoff |
 
 The owner explicitly authorised accepting Steam's Cloud sync warning, and runtime tests proceeded. This does not resolve Steam Cloud itself. See `HANDOFF.md` for exact evidence and limits.
