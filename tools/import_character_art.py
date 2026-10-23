@@ -1,4 +1,4 @@
-"""Import generated character atlases; perform only resizing and UI crops.
+"""Import generated character atlases; perform resizing, frame remapping and UI crops.
 
 Usage: python tools/import_character_art.py --claude INPUT --deepseek INPUT
 Requires Pillow for development only. The game uses the resulting PNG files.
@@ -13,6 +13,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--claude', required=True)
 parser.add_argument('--deepseek', required=True)
 parser.add_argument('--claude-back-heads', help='Edited atlas: reuse corrected top-row cell 5 for both back-head frames')
+parser.add_argument('--claude-parts', help='4x4 repair grid: rear heads, front/side/rear headless bodies')
 parser.add_argument('--deepseek-back-heads', help='Edited atlas: import only top-row cell 4')
 args = parser.parse_args()
 
@@ -46,6 +47,45 @@ for index, (key, name, source) in enumerate([
         outside = image.copy()
         outside.paste(original.crop(box), (box[0], box[1]))
         assert outside.tobytes() == original.tobytes(), 'A head patch changed unrelated art'
+    # Generated clothing occupies the alternate body cells. The engine's base
+    # walk animations use the first set, which must also contain the outfit.
+    # This is a mechanical cell copy; no new pixels are drawn.
+    dressed = image.copy()
+    for box, position in [((448, 0, 512, 32), (192, 0)),
+                          ((256, 32, 512, 96), (0, 32)),
+                          ((256, 96, 320, 128), (0, 96))]:
+        image.paste(dressed.crop(box), position)
+    if key == 'claudechan' and args.claude_parts:
+        parts = Image.open(args.claude_parts).convert('RGBA')
+        assert parts.width == parts.height
+        parts = parts.resize((1024, 1024), Image.Resampling.NEAREST)
+        cell = parts.width // 4
+
+        def fitted_part(column, row, size, origin):
+            cut = parts.crop((column * cell, row * cell,
+                              (column + 1) * cell, (row + 1) * cell))
+            # Ignore nearly transparent generation speckles when measuring a cutout.
+            bounds = cut.getchannel('A').point(lambda value: 255 if value >= 128 else 0).getbbox()
+            assert bounds, 'Repair cell must contain visible art'
+            cut = cut.crop(bounds)
+            cut.thumbnail(size, Image.Resampling.NEAREST)
+            frame = Image.new('RGBA', (32, 32))
+            frame.alpha_composite(cut, (origin[0] - cut.width // 2,
+                                       origin[1] - cut.height // 2))
+            return frame
+
+        rear = fitted_part(0, 0, (28, 28), (16, 16))
+        for x in (128, 160):
+            image.paste(rear, (x, 0))
+        for row, y in ((1, 32), (2, 64)):
+            for base in (0, 256):
+                for column in range(8):
+                    image.paste(fitted_part(column % 4, row, (18, 18), (16, 18)),
+                                (base + column * 32, y))
+        for x in (192, 224, 448, 480):
+            image.paste(fitted_part((x // 32) % 4, 1, (18, 18), (16, 18)), (x, 0))
+        for x in (0, 32, 256, 288):
+            image.paste(fitted_part((x // 32) % 4, 3, (18, 18), (16, 18)), (x, 96))
     output = ROOT / 'resources/gfx/characters/costumes' / f'character_{key}.png'
     output.parent.mkdir(parents=True, exist_ok=True)
     image.save(output)

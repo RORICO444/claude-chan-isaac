@@ -65,3 +65,5 @@ Also: in-game test checklist (`docs/TESTING.md`), goals (`docs/GOALS.md`).
 - Risk score and random proxy IP per floor, enemy HP scaling, hydra respawns.
 - **Ban Hammer** (active) and **Residential IP** (passive).
 - EID descriptions in English, Chinese and Japanese.
+
+- Runtime art fixes: preserve custom faces with Reactions Port Pack, remap DeepSeek clothing, fit repaired Claude rear heads and headless body frames into engine cells, and move captions above the Loadout prompt.

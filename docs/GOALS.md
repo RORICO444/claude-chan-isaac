@@ -7,15 +7,15 @@ The owner wants new item and character ideas implemented with corresponding artw
 | Requirement | Current evidence | Remaining work |
 |---|---|---|
 | Review contributions | PR #1 and #2 reviewed and merged | Preserve subsequent contributions through PRs |
-| Add an item | Support Ticket implemented, registered, pooled, localised and regression-tested | Verify real-game charges, Car Battery and insufficient-coins cases |
+| Add an item | Support Ticket implemented, registered, pooled, localised and regression-tested | Actual use and zero-risk/2-coin charge retention observed; Car Battery and positive-risk insufficient-coins engine checks remain |
 | Add a character | DeepSeek-chan implemented; initial resources and pocket item observed in Repentance+ | Verify no-hit bonus in game, local co-op and a complete run |
-| Corresponding art | Claude/DeepSeek atlases, portraits, names and selection assets installed | Verify every animation, back-head frames, costumes and UI in game; polish failures |
-| Story | Four saved chapters and early-approval route variants in en/zh/ja | Verify final subtitles with EID and real-game save/continue |
-| Base-game compatibility | Repentance+ 1.9.7.17 loaded the earlier gameplay build; Lua 5.3 and CI checks pass | Current art build, normal Repentance, local co-op, full-run and costume checks remain open |
+| Corresponding art | Claude/DeepSeek atlases, portraits, names and selection assets installed | Front/rear game views and Continue portraits observed; complete animation/costume/UI matrix remains |
+| Story | Four saved chapters and early-approval route variants in en/zh/ja | Subtitle/Loadout separation and no repeat of chapter one on continue observed; remaining chapters/languages remain |
+| Base-game compatibility | Repentance+ 1.9.7.17 loaded the corrected art build; Lua 5.3 and offline checks pass | Normal Repentance, local co-op, full-run and comprehensive costume checks remain open |
 | GitHub/local synchronisation | Feature work is in draft PR #3; installed files match reviewed source | Keep branch commits and installed assets matched after each update |
 | Claude collaboration/handoff | `HANDOFF.md` records implementation, tests, gaps and next content ideas | No independent Claude review has occurred; next session should start from the handoff |
 
-Steam Cloud currently blocks restarting the game with an explicit possible-progress-loss warning. Wait for sync recovery or the owner's decision before accepting it. Do not equate the stopped launch with a successful runtime test.
+The owner explicitly authorised accepting Steam's Cloud sync warning, and runtime tests proceeded. This does not resolve Steam Cloud itself. See `HANDOFF.md` for exact evidence and limits.
 
 Always test muted and close owned game sessions afterward. Keep backups verified locally, notes and saves in place, and credentials, personal images and machine-specific data outside GitHub.
 

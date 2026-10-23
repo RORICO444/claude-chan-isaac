@@ -116,3 +116,17 @@ local count = #draws
 fire("MC_PRE_GAME_EXIT"); fire("MC_POST_GAME_STARTED", true); fire("MC_POST_RENDER")
 assert(#draws == count, "completed chapters repeated after continue")
 print("OK: early approval preserves later story progression and reviewed dialogue")
+
+-- An unknown-character fallback in Reactions Port Pack must not replace our skin.
+local compat = include("scripts.compatibility.reaction_pack")
+compat:Register(nil)
+compat:Register({CostumeSets = {}})
+local custom = {Apply = {99}, Remove = {98}}
+local fallback = {Default = {Apply = {159}}, [41] = custom, [0] = {Apply = {1}}}
+local pack = {CostumeSets = {Disabled = {IDs = {"Disabled"}},
+    Ugh = {IDs = {"Ugh"}, Ugh = fallback}}}
+compat:Register(pack)
+assert(fallback[41] == custom, "preserve explicit character support")
+assert(#fallback[42].Apply == 0 and #fallback[42].Remove == 0)
+assert(fallback.Default.Apply[1] == 159 and fallback[0].Apply[1] == 1)
+local entry = fallback[42]; compat:Register(pack); assert(fallback[42] == entry)

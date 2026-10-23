@@ -35,7 +35,7 @@ function Story:Init(mod, Risk)
     end)
     mod:AddCallback(ModCallbacks.MC_POST_RENDER, function()
         if not ready or not active or timer <= 0 or not Game():GetHUD():IsVisible() then return end
-        local y = Isaac.GetScreenHeight() - 78
+        local y = Isaac.GetScreenHeight() - 105
         HudText:Draw(HudText:T(active .. "_title"), 100, y, 1, 0.8, 0.5, 0.9)
         HudText:Draw(HudText:T(active .. "_line"), 100, y + 12, 1, 1, 1, 0.9)
     end)

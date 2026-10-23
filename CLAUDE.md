@@ -9,7 +9,7 @@ Several people work on this repo: the owner and their friends in China, each pos
 - Keep each PR to one item, enemy or fix.
 - Before committing, run `bash tools/check.sh`. It needs Lua 5.3+ (`apt-get install -y lua5.4`; if that fails, `texlua` from TeX Live also works and the script finds it). CI runs the same script on every PR.
 - Adding an item, trinket, pill or enemy: follow the checklist in [CONTRIBUTING.md](CONTRIBUTING.md) (same as HANDOFF's "New item checklist"). Player-facing text needs English, Simplified Chinese and Japanese.
-- Nothing here has been run in the real game yet. Don't claim something works in game unless someone tested it; say what the stubbed tests do and don't cover.
+- Repentance+ smoke tests have been run; see docs/HANDOFF.md for exact observations and remaining gaps. Do not extend that evidence to untested features or versions.
 - When the project state changes (something tested in game, a system finished), update `docs/HANDOFF.md` in the same PR.
 
 ## Content rules (agreed with the owner)

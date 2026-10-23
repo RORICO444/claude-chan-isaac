@@ -1,43 +1,49 @@
 # Handoff for Claude and contributors
 
-Updated 2026-10-23 (Japan time), v0.4-dev. Read this before continuing. This is a Codex implementation handoff; no separate Claude session reviewed this change.
+Updated 2026-10-23 (Japan time), v0.4-dev. This is a Codex implementation handoff. No separate Claude session reviewed these changes; no Claude CLI or connected Claude service was available.
 
-## Current work
+## Implemented content
 
-- PR #1 (collaboration/CI) and PR #2 (RORICO444 item icons) were reviewed and merged, preserving contribution history. PR #2 originally targeted `setup/collaboration`; it was retargeted to `main` after #1 merged.
-- Added `Support Ticket`: six-charge shop active, 3 coins for risk -20, no payment/charge if coins are insufficient or risk is zero; Car Battery cannot charge twice.
-- Added playable `DeepSeek-chan`: 2 red + 1 soul heart, 3 coins, 1 key, pocket Support Ticket, damage x0.85, firing interval x0.85 and blue tears. A no-hit room reduces shared risk by two extra points once for the team.
-- Added `scripts/story.lua`: four original localised chapters. `Risk.state.storySeen` is a saved bitmask; `reviewApproved` unlocks the last caption on the next room. Chapters do not pause the run or replace vanilla ending files.
-- Added custom generated character atlases, portraits, names and selection animations for both characters. The owner correctly noted the original gameplay build still looked like Isaac; these new assets now replace its skin paths. **The new art has not yet been verified in the running game.** See `ART_GENERATION.md` and `ART_SPEC.md`.
-- An offline visual pass then corrected Claude's two rear-facing head frames and DeepSeek's bald rear-head frame. Imagegen supplied the corrected art; the importer copies only those cells and verifies that all unrelated RGBA pixels remain identical. The corrected sheets have been inspected offline and installed; their in-game animation checks remain open.
-- Fixed Silent Update's RNG lifecycle: `MC_POST_NEW_LEVEL` can fire before game start. Each floor now seeds before drawing; continue keeps its saved multiplier.
-- Fixed early-review story progression: approving an appeal on floor one no longer suppresses stages 3 and 5. Both later chapters have approved-route dialogue in en/zh/ja and share the original saved chapter bits.
-- Windows checks now reject the Python Store placeholder and force UTF-8. Asset checks validate PNG dimensions, exact item-icon regeneration, item pools, character paths and ANM2 frame bounds. Symmetry failures now return a failing exit status.
+- PR #1 (collaboration/CI) and PR #2 (RORICO444 item icons) were reviewed and merged, preserving contribution history. PR #2 was retargeted from `setup/collaboration` to `main` after #1 merged.
+- Support Ticket: six-charge shop active; pay 3 coins for risk -20. Insufficient coins or zero risk preserve money and charge. Car Battery cannot bill twice.
+- DeepSeek-chan: 2 red hearts and 1 soul heart, 3 coins, 1 key, pocket Support Ticket, damage x0.85, firing interval x0.85, blue tears. A no-hit room reduces shared risk by two extra points once for the team.
+- The Appeal Queue: four original captions in en/zh/ja. `Risk.state.storySeen` is a saved bitmask. Approval unlocks its caption in the next room, while stages 3 and 5 retain their own approved-route dialogue. Captions do not pause the game or replace vanilla endings.
+- Both characters have generated custom atlases, portraits, names and selection assets. See `ART_GENERATION.md` for prompts, provenance and frame importing. These are first-pass game sprites, not downloaded Bilibili artwork.
+- Optional Reactions Port Pack compatibility registers empty fallback costume lists for these two characters only. It preserves explicitly supplied character support, sounds/music and other players. Without this, that pack gives unknown characters a default Isaac face. Never fix this by clearing every player costume or editing another mod.
+- DeepSeek clothing is mapped into the base body cells. Claude's rear heads and headless walking bodies were regenerated as isolated parts and fitted inside engine cells after runtime testing exposed cropping and miniature heads in the original atlas.
+- Silent Update seeds its floor RNG before drawing, including the pre-start `MC_POST_NEW_LEVEL` callback, and preserves the saved multiplier on continue.
+- Windows checks skip Python Store stubs and force UTF-8. Asset checks cover deterministic item icons, dimensions, pools, character paths and ANM2 bounds.
 
-## Validation and limits
+## Actual validation
 
-- `bash tools/check.sh`: passes using Lua 5.3 (`texlua`) and Python 3.10 on Windows. All four Lua tests pass, including new item boundaries, duplicate use, co-op risk, seeded floor lifecycle, saved story chapters and exact EID registration counts.
-- All 21 PR #2 icons regenerate byte-for-byte; the new Support Ticket icon does too.
-- Repentance+ **1.9.7.17** successfully loaded the installed gameplay build. The visible run was DeepSeek-chan with 3 coins, 1 key and pocket Support Ticket; risk HUD and the first story caption rendered. A later view showed 0 coins and 0 risk, consistent with a ticket activation.
-- That view exposed a subtitle/EID overlap. Subtitles were moved above the lower HUD; the revised position still needs runtime verification.
-- A pre-existing `stackable items v2` mod throws `resources/scripts/main.lua:154: table index is nil`; do not attribute that error to this mod. Do not modify or disable unrelated mods without checking with the owner.
-- The owner stopped Computer Use with physical Escape. No further app input was sent after that stop. Final sprite-animation checks, save/continue in game, vanilla Repentance and local co-op remain unverified. Keep these limitations visible.
-- On the next continuation, the previous test game was closed normally. All 100 reviewed application files, including both character sheets and selection assets, were installed in the existing mod folder and verified against the source with matching hashes. The runtime checkout is now connected to `codex/appeal-story`; notes and saves remain untouched.
-- Restart is currently blocked by Steam's explicit Cloud sync-failed warning, which says proceeding can permanently lose progress. Computer Use is waiting for the owner's decision before accepting that warning. No new gameplay session was started. The game process was verified absent after closing the previous session. Do not bypass the warning through an alternative launcher.
-- Tests used muted game settings. Close the game when finishing any future tests. Do not operate login dialogs or use credentials supplied in chat.
+- `bash tools/check.sh` passes under Lua 5.3 (`texlua`) and Python 3.10 on Windows: all four Lua tests, syntax, XML and assets. CI runs the same checks. Regression cases include item boundaries, Car Battery, co-op shared risk, floor seeding, early approval, saved chapters and optional reaction-pack fallbacks.
+- Repentance+ 1.9.7.17 loaded both custom characters in the existing mod installation with the owner's other mods enabled. Claude's front/rear appearance and DeepSeek's front/rear/right shooting appearance were inspected. Blue DeepSeek tears, orange Claude tears and Claude's usage-limit HUD were observed. The final corrected Claude rear silhouette rendered complete.
+- Both portraits appeared on Continue. DeepSeek continued with its custom skin; Claude also continued with custom art and without repeating the already-seen first chapter.
+- Actual pocket-item input changed DeepSeek from 3 coins / risk 2 to 0 coins / risk 0. A subsequent use attempt at 2 coins / zero risk retained 2 coins and exactly 6 pocket charges, confirmed through `GetActiveCharge(SLOT_POCKET)`.
+- A stage-3 transition after early approval displayed its approved-route second chapter. The final subtitle position (`screen height - 105`) was checked on a later stage-3 transition: it was separated from Loadout's fixed bottom prompt. EID occupies the upper area; the original EID/subtitle overlap was removed.
+- A Claude D4 use with an added passive completed without a mod error and retained custom art; this is a single smoke case, not comprehensive costume coverage.
+- Test aiming and pocket use used temporary session-only input callbacks through the game's debug console. They were never installed or committed; the final callback was removed before shutdown.
+- Steam's Cloud sync-failed warning was accepted only after the owner explicitly authorised proceeding. It remains a Steam sync issue, not a mod fix. Tests remained muted; the game was closed normally afterward.
 
-## Next exact steps
+## Remaining release checks
 
-1. Fetch and confirm the feature branch and installed files still match. The art installation itself is complete; do not recopy or recreate a second mod folder. Back up the installed previous version before any further overwrite.
-2. Resolve Steam Cloud sync or obtain the owner's explicit decision about its launch warning. Then launch muted, start a seeded test, and inspect both characters: all four head directions, shooting, walk, hurt, death, flying, stage/boss portraits and selection labels. Inspect custom-sheet cells carefully; generated art may need pixel alignment and back-head corrections. Test D4, transformation costumes and skin-colour effects before calling the art complete.
-3. Test Support Ticket at risk 0, risk 10/50, 2/3 coins, Car Battery; confirm charge behaviour. Continue a saved run and check the story does not repeat. Check EID layout at the revised subtitle location.
-4. Keep development via branches and PRs. Fetch before editing; preserve concurrent contributions. Do not publish a Workshop release yet.
-5. The next designed content slice is in `STORY.md`: Offline Cache, Gemini-chan and the neutral Queue Clerk. Implement one small feature at a time with en/zh/ja text and a specific game test.
+- Normal Repentance, local co-op, complete runs to Mom, no-hit bonus in the real game, Car Battery and positive-risk insufficient-funds engine cases remain to be checked. Offline tests cover these logic branches but cannot prove engine behaviour.
+- Inspect all walking/shooting directions, hurt/death/flying frames, boss/stage transition portraits, skin-colour items, transformations and more D4 outcomes. The art is usable first-pass work, not final animation polish. Separate hair costumes may be needed to preserve the design through skin-changing items.
+- Check the final chapter and approved caption with ordinary room transitions, and test all languages at different screen/HUD settings. Saved-state logic has regression coverage; only a subset of chapters has been observed in game.
+- The pre-existing `stackable items v2` startup error (`resources/scripts/main.lua:154: table index is nil`) still occurs. Another existing mod's entities2 assertion and resource-cache shutdown warnings are unrelated. Do not change or disable unrelated mods without checking with the owner.
+- Do not publish a Workshop release yet. Design-license/permission evidence and the full acceptance milestone in `GOALS.md` are still open.
 
-## Project conventions
+## Next work
 
-`main.lua` loads modules onto one shared mod object. Constitution damage cancellation must register before risk damage bookkeeping. Persistent run state goes in `Risk.state`. Use seeded RNG, no network calls or telemetry in gameplay, and content XML rather than replacing vanilla resources.
+1. Fetch and review remote changes before editing. Reuse the existing source/runtime locations; do not create duplicate mod folders. Back up the installed previous version using the owner's local backup workflow before any overwrite.
+2. Work through the release checks above, keeping actual observations separate from stub tests. Test muted and close owned game sessions afterward.
+3. The next content ideas are Offline Cache, Gemini-chan and the neutral Queue Clerk in `STORY.md`. Implement one small feature at a time, with en/zh/ja text and a specific game test.
+4. Work through branches/PRs and update this handoff with meaningful project-state changes. Keep source, GitHub and runtime assets synchronized.
 
-Code/item icons are MIT; character design/art terms are separate in `resources/ART_LICENSE.md`. Design credits: ZipZipPipe, plus 上善无形 for DeepSeek. No official logos. Enemies are infrastructure and abuse mechanisms, not populations. Keep notes, credentials, personal images, saves, machine-specific paths and backups out of GitHub. Prior-version backups are local and verified; their paths are deliberately absent from this repository.
+## Boundaries and conventions
 
-The owner supplied Bilibili video BV1yUJZ6WEpg as inspiration. Public page/API retrieval failed in this session, so no claim was made that its downloadable files or license had been inspected, and no video pixels were used.
+`main.lua` loads modules onto one shared mod object. Constitution's damage cancellation must register before risk damage bookkeeping. Run state belongs in `Risk.state`. Use seeded RNG; no network calls or telemetry during gameplay. Use content XML, not global vanilla-resource replacements.
+
+Code/item icons are MIT. Character design/art terms are separate in `resources/ART_LICENSE.md`; credits include ZipZipPipe and 上善无形. No official logos. Enemies are infrastructure and abuse mechanisms, not populations. Keep notes, credentials, personal images, saves, machine paths and backup contents outside GitHub.
+
+The owner supplied Bilibili video BV1yUJZ6WEpg as inspiration. Its public page/API could not be retrieved in this session, so no downloadable-file or licence inspection is claimed and no video pixels were used. Do not operate login dialogs or use credentials supplied in chat.

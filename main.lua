@@ -35,3 +35,5 @@ include("scripts.items.support_ticket"):Init(mod, Risk)
 include("scripts.characters.deepseek_chan"):Init(mod, Risk)
 include("scripts.story"):Init(mod, Risk)
 include("scripts.eid"):Init()
+
+include("scripts.compatibility.reaction_pack"):Init(mod)
