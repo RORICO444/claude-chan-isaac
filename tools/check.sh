@@ -70,6 +70,9 @@ for path in files:
         gfxroot = root.get("gfxroot", "")
         for el in root:
             gfx = el.get("gfx")
+            folder = "trinkets" if el.tag == "trinket" else "collectibles"
+            if gfx:
+                gfx = os.path.join(folder, gfx)
             if gfx and not os.path.isfile(os.path.join("resources", gfxroot, gfx)):
                 print(f"  ✗ {path}: 「{el.get('name')}」的贴图不存在 / sprite missing: resources/{gfxroot}{gfx}")
                 ok = False
