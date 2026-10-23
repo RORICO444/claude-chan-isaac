@@ -27,6 +27,8 @@ function Story:Init(mod, Risk)
         end
     end
     local function chapter(reviewOnly)
+        -- The appeal story is about bans; a DeepSeek-only run never gets banned.
+        if Risk.IsActive and not Risk:IsActive() then return end
         local stage = Game():GetLevel():GetStage()
         local key = stage >= 5 and "story_3" or stage >= 3 and "story_2" or "story_1"
         if reviewOnly then

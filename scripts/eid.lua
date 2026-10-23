@@ -5,6 +5,11 @@ local Constants = include("scripts.constants")
 local Eid = {}
 
 local descriptions = {
+    [Constants.Item.LUNCH_BREAK] = {
+        en_us = { "Lunch Break", "Heals 1 red heart#All enemies are slowed for 3 seconds#You can't shoot for 3 seconds" },
+        zh_cn = { "去吃饭了", "回复1颗红心#所有敌人减速3秒#3秒内无法射击" },
+        ja_jp = { "飯食ってくる", "赤ハート1つ回復#すべての敵を3秒間スロウ#3秒間涙を撃てない" },
+    },
     [Constants.Item.SUPPORT_TICKET] = {
         en_us = { "Support Ticket", "Costs 3 coins: risk -20#6 room charges#No coins or no risk: keeps the charge#Car Battery does not bill twice" },
         zh_cn = { "人工复核工单", "支付3枚硬币：风控值-20#6格充能#硬币不足或风控为零时不消耗充能#车载电池不会重复扣费" },
@@ -61,14 +66,14 @@ local descriptions = {
         ja_jp = { "テスト全件パス", "部屋がクリア扱いになり、すべての扉が開く#敵はまだいる（アサーションを消しただけ）" },
     },
     [Constants.Item.VIBE_CODING] = {
-        en_us = { "Vibe Coding", "Every tear gets a random effect (homing, piercing, spectral, poison, slow)#5% of tears are bugs that fly backwards#Each new floor: lose 25% of your coins (API bill)" },
-        zh_cn = { "氛围编程", "每发眼泪随机获得一种效果（追踪、穿透、幽灵、中毒、减速）#5%的眼泪是bug，会往反方向飞#每到新的一层：失去25%硬币（API账单）" },
-        ja_jp = { "バイブコーディング", "涙にランダムな効果（ホーミング、貫通、スペクトラル、毒、スロウ）が付く#5%の涙はバグで逆方向に飛ぶ#新しいフロアごとにコインの25%を失う（API請求）" },
+        en_us = { "Vibe Coding", "Every tear gets a random effect (homing, piercing, spectral, poison, slow)#5% of tears are bugs that fly backwards#Each new floor: lose 25% of your coins (API bill)#Make no mistakes: no hit on the floor waives the bill" },
+        zh_cn = { "氛围编程", "每发眼泪随机获得一种效果（追踪、穿透、幽灵、中毒、减速）#5%的眼泪是bug，会往反方向飞#每到新的一层：失去25%硬币（API账单）#Make no mistakes：这一层没受伤就免单" },
+        ja_jp = { "バイブコーディング", "涙にランダムな効果（ホーミング、貫通、スペクトラル、毒、スロウ）が付く#5%の涙はバグで逆方向に飛ぶ#新しいフロアごとにコインの25%を失う（API請求）#Make no mistakes：そのフロアで無傷ならAPI請求が免除" },
     },
     [Constants.Item.BANKED_RESET] = {
-        en_us = { "Banked Reset", "Risk -25#Claude-chan: usage meter reset, ends a usage limit early" },
-        zh_cn = { "储存的重置", "风控值-25#Claude娘：用量清零，立即解除用量限制" },
-        ja_jp = { "バンク済みリセット", "リスク値-25#Claudeちゃん：使用量がリセットされ、利用上限もすぐ解除" },
+        en_us = { "Banked Reset", "Risk -25#Claude-chan: usage meter reset, ends a usage limit early#Tainted Claude-chan: weekly limit refilled" },
+        zh_cn = { "储存的重置", "风控值-25#Claude娘：用量清零，立即解除用量限制#里Claude娘：周限额恢复" },
+        ja_jp = { "バンク済みリセット", "リスク値-25#Claudeちゃん：使用量がリセットされ、利用上限もすぐ解除#裏Claudeちゃん：週間上限が回復" },
     },
     [Constants.Item.SUBAGENT_SWARM] = {
         en_us = { "Subagent Swarm", "Every tear spawns 2 subagent tears at ±15° (50% damage)#Claude-chan: each tear costs double usage" },
@@ -89,9 +94,9 @@ local descriptions = {
 
 local trinketDescriptions = {
     [Constants.Trinket.OVERLOADED] = {
-        en_us = { "529 Overloaded", "Every 20 seconds in a fight, everything goes down for 2 seconds:#all enemies freeze, and you can't shoot" },
-        zh_cn = { "529 Overloaded", "战斗中每20秒全部宕机2秒：#所有敌人冻结，你也无法射击" },
-        ja_jp = { "529 Overloaded", "戦闘中20秒ごとに2秒間すべてがダウン：#すべての敵が凍結し、自分も涙を撃てない" },
+        en_us = { "529 Overloaded", "Every 20 seconds in a fight, everything goes down for 2 seconds:#all enemies freeze#You code manually: you can still shoot, at 50% damage" },
+        zh_cn = { "529 Overloaded", "战斗中每20秒全部宕机2秒：#所有敌人冻结#只能手写代码：还能射击，但伤害50%" },
+        ja_jp = { "529 Overloaded", "戦闘中20秒ごとに2秒間すべてがダウン：#すべての敵が凍結#手でコードを書く：涙は撃てるがダメージ50%" },
     },
     [Constants.Trinket.HARDCODED_OUTPUT] = {
         en_us = { "Hardcoded Output", "Every tear deals exactly 3.5 damage, the expected output#Great when weak, terrible when strong" },
@@ -134,15 +139,25 @@ local pillDescriptions = {
 }
 
 local characterDescriptions = {
-    [Constants.Player.DEEPSEEK_CHAN] = {
-        en_us = { "DeepSeek-chan", "Damage x0.85, firing interval x0.85, blue tears#Starts with Support Ticket (pocket), 3 coins and 1 key#No player hit during a room: shared risk falls by 2 extra#Custom first-pass sprite art; design references: 上善无形 / ZipZipPipe" },
-        zh_cn = { "DeepSeek娘", "伤害×0.85，射击间隔×0.85，蓝色眼泪#初始口袋道具：人工复核工单，3硬币及1钥匙#全队无伤清房：共享风控额外-2#自定义初版贴图；角色设计参考：上善无形 / ZipZipPipe" },
-        ja_jp = { "DeepSeekちゃん", "ダメージ×0.85、射撃間隔×0.85、青い涙#初期ポケット：サポートチケット、コイン3枚と鍵1個#全員無傷で部屋をクリア：共有リスク値が追加で-2#独自の初版画像。デザイン参考：上善无形 / ZipZipPipe" },
-    },
     [Constants.Player.CLAUDE_CHAN] = {
-        en_us = { "Claude-chan", "Range +1.5, Shot Speed +0.2, Speed -0.1#Starts with Ban Hammer (pocket)#Usage limit: shooting fills a meter; when full, tears deal 40% damage for 5 seconds#Design: ZipZipPipe" },
-        zh_cn = { "Claude娘", "射程+1.5，弹速+0.2，移速-0.1#初始口袋道具：封号锤#用量限制：射击会累积用量，满了之后5秒内眼泪伤害降为40%#角色设计：ZipZipPipe" },
-        ja_jp = { "Claudeちゃん", "射程+1.5、弾速+0.2、移動速度-0.1#初期ポケットアイテム：BANハンマー#利用上限：撃つと使用量が溜まり、満タンになると5秒間涙のダメージが40%に#デザイン：ZipZipPipe" },
+        en_us = { "Claude-chan", "Range +1.5, Shot Speed +0.2, Speed -0.1#Starts with Ban Hammer (pocket)#Usage limit: shooting fills a meter; when full, tears deal 40% damage for 5 seconds#Account age: +0.2 damage per floor reached without being Suspended (max +1.6); Suspension resets it#Design: ZipZipPipe" },
+        zh_cn = { "Claude娘", "射程+1.5，弹速+0.2，移速-0.1#初始口袋道具：封号锤#用量限制：射击会累积用量，满了之后5秒内眼泪伤害降为40%#账号满月：每层未被封禁伤害+0.2（最多+1.6），被封禁就清零（又封了）#角色设计：ZipZipPipe" },
+        ja_jp = { "Claudeちゃん", "射程+1.5、弾速+0.2、移動速度-0.1#初期ポケットアイテム：BANハンマー#利用上限：撃つと使用量が溜まり、満タンになると5秒間涙のダメージが40%に#アカウント年齢：停止されずに進んだフロアごとにダメージ+0.2（最大+1.6）、停止でリセット#デザイン：ZipZipPipe" },
+    },
+    [Constants.Player.CLAUDE_CHAN_B] = {
+        en_us = { "Tainted Claude-chan", "Damage x1.25, Range +1.5, Shot Speed +0.2#Starts with Banked Reset (pocket)#Weekly limit: 220 tears per floor; past it, tears deal 25% damage until the next floor#Design: ZipZipPipe" },
+        zh_cn = { "里Claude娘", "伤害×1.25，射程+1.5，弹速+0.2#初始口袋道具：储存的重置#周限额：每层只能射220发，超过后到下一层前眼泪伤害降为25%#角色设计：ZipZipPipe" },
+        ja_jp = { "裏Claudeちゃん", "ダメージ×1.25、射程+1.5、弾速+0.2#初期ポケットアイテム：バンク済みリセット#週間上限：1フロア220発まで。超えると次のフロアまで涙のダメージ25%#デザイン：ZipZipPipe" },
+    },
+    [Constants.Player.DEEPSEEK_CHAN] = {
+        en_us = { "DeepSeek-chan", "Direct connection: no proxy, no IP, no risk (when playing alone)#Deep Think: not shooting builds thought (up to 5 s); the next tear deals up to x2 damage#Server busy: the more enemies, the more often a tear doesn't go out (up to 25%)#Starts with Lunch Break (pocket); damage x0.9, blue tears#Design: 上善无形 / ZipZipPipe" },
+        zh_cn = { "DeepSeek娘", "直连：无需代理，没有IP和风控（单人时）#深度思考：不射击时积累思考（最多5秒），下一发伤害最高×2#服务器繁忙：敌人越多，眼泪越常发不出去（最高25%）#初始口袋道具：去吃饭了；伤害×0.9，蓝色眼泪#角色设计：上善无形 / ZipZipPipe" },
+        ja_jp = { "DeepSeekちゃん", "直結：プロキシもIPも風控値もなし（1人プレイ時）#深度思考：撃たずにいると思考がたまり（最大5秒）、次の一発が最大2倍#サーバー混雑：敵が多いほど涙が出ないことがある（最大25%）#初期ポケット：飯食ってくる。ダメージ×0.9、青い涙#デザイン：上善无形 / ZipZipPipe" },
+    },
+    [Constants.Player.DEEPSEEK_CHAN_B] = {
+        en_us = { "Tainted DeepSeek-chan", "Direct connection: no proxy, no IP, no risk (when playing alone)#Open Source: every tear is forked into 2 extra tears at ±12° (50% damage)#Server busy more often: up to 40%#Damage x0.8, cyan tears#Design: 上善无形 / ZipZipPipe" },
+        zh_cn = { "里DeepSeek娘", "直连：无需代理，没有IP和风控（单人时）#开源：每发眼泪都会被fork出2发±12°的眼泪（50%伤害）#服务器更容易繁忙：最高40%#伤害×0.8，青色眼泪#角色设计：上善无形 / ZipZipPipe" },
+        ja_jp = { "裏DeepSeekちゃん", "直結：プロキシもIPも風控値もなし（1人プレイ時）#オープンソース：涙が±12°に2発フォークされる（ダメージ50%）#サーバー混雑が起きやすい：最大40%#ダメージ×0.8、シアンの涙#デザイン：上善无形 / ZipZipPipe" },
     },
 }
 

@@ -13,6 +13,7 @@
     <passive name="Subagent Swarm" description="Parallel everything" gfx="collectibles/subagent_swarm.png" quality="3" />
     <passive name="The Constitution" description="Safety first" gfx="collectibles/constitution.png" cache="damage speed" quality="3" />
     <passive name="Opus Mode" description="More expensive than gold" gfx="collectibles/opus_mode.png" cache="damage" quality="3" />
+    <active name="Lunch Break" description="Brb, getting food" gfx="collectibles/lunch_break.png" maxcharges="6" quality="2" />
     <trinket name="529 Overloaded" description="Everything is down" gfx="trinkets/overloaded.png" />
     <active name="All Tests Passing" description="Assertions removed" gfx="collectibles/tests_passing.png" maxcharges="6" quality="2" />
     <trinket name="Hardcoded Output" description="Expected: 3.5" gfx="trinkets/hardcoded_output.png" />

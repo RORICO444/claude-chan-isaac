@@ -549,7 +549,20 @@ def support_ticket():
     return c
 
 
+def lunch_break():
+    """A blue rice bowl with chopsticks: DeepSeek's "brb, getting food"."""
+    c = clear()
+    ellipse(c, 16, 15, 9, 5, "F")          # rice
+    rrect(c, 6, 15, 25, 24, 4, "c")        # bowl
+    line(c, 8, 18, 23, 18, "X")            # rim glint
+    rect(c, 12, 24, 19, 26, "c")           # foot
+    line(c, 19, 3, 27, 12, "W")            # chopsticks
+    line(c, 22, 3, 28, 10, "W")
+    return c
+
+
 SPRITES = {
+    "lunch_break": lunch_break,
     "support_ticket": support_ticket,
     "ban_hammer": ban_hammer,
     "residential_ip": residential_ip,

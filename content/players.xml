@@ -15,4 +15,14 @@
             hp="4" armor="2" black="0" coins="3" bombs="0" keys="1"
             portrait="playerportrait_deepseekchan.png" bigportrait="playerportrait_deepseekchan.png"
             nameimage="playername_deepseekchan.png" />
+    <!-- Tainted (裏) versions: same name + bSkinParent. Art is a recolour of
+         the normal sheets (tools/make_tainted_art.py). -->
+    <player name="Claude-chan" skin="character_claudechan_b.png" skinColor="-1"
+            hp="2" armor="4" black="0" coins="0" bombs="1" keys="0"
+            portrait="playerportrait_claudechan_b.png" bigportrait="playerportrait_claudechan_b.png"
+            nameimage="playername_claudechan.png" bSkinParent="Claude-chan" />
+    <player name="DeepSeek-chan" skin="character_deepseekchan_b.png" skinColor="-1"
+            hp="2" armor="2" black="0" coins="0" bombs="0" keys="0"
+            portrait="playerportrait_deepseekchan_b.png" bigportrait="playerportrait_deepseekchan_b.png"
+            nameimage="playername_deepseekchan.png" bSkinParent="DeepSeek-chan" />
 </players>
