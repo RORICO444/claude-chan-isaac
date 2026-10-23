@@ -38,10 +38,11 @@ include("scripts.eid"):Init()
 
 include("scripts.compatibility.reaction_pack"):Init(mod)
 
--- Explicit manual developer probe; never runs during ordinary gameplay.
+-- Load the definition in this mod context; only an explicit developer callback runs it.
+local RuntimeProbe = include("tests.runtime_probe")
 mod:AddCallback("ClaudeChan:RunRuntimeProbe", function()
     local ok, message = pcall(function()
-        include("tests.runtime_probe"):Run(mod, Risk, resumeStory)
+        RuntimeProbe:Run(mod, Risk, resumeStory)
     end)
     if not ok then print("CCQA FAIL " .. tostring(message)) end
 end)

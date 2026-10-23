@@ -1,4 +1,4 @@
--- Manual Repentance/Repentance+ probe; loaded only by an explicit developer callback.
+-- Manual Repentance/Repentance+ probe; run only by an explicit developer callback.
 -- Console: lua Isaac.RunCallback("ClaudeChan:RunRuntimeProbe")
 -- Use only an owned disposable DeepSeek stage-1 run.
 -- It changes test coins/risk, adds Car Battery, changes floors and round-trips this
