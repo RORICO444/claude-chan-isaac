@@ -95,27 +95,54 @@ for _ = 1, 210 do fire("MC_POST_UPDATE") end
 local before = #draws; fire("MC_POST_RENDER"); assert(#draws == before)
 fire("MC_PRE_GAME_EXIT"); fire("MC_POST_NEW_LEVEL")
 fire("MC_POST_GAME_STARTED", true); fire("MC_POST_RENDER"); assert(#draws == before)
+local function finishCaption()
+    for _ = 1, 210 do fire("MC_POST_UPDATE") end
+end
 stage = 3; fire("MC_POST_NEW_LEVEL"); assert(risk.state.storySeen == 3)
+finishCaption()
 stage = 5; fire("MC_POST_NEW_LEVEL"); assert(risk.state.storySeen == 7)
+finishCaption()
 risk.state.reviewApproved = true; fire("MC_POST_NEW_ROOM")
 assert(risk.state.storySeen == 15)
 fire("MC_POST_RENDER"); assert(draws[#draws - 1] == "4. A human finally read it")
 print("OK: Support Ticket boundaries, duplicate use, co-op, seed lifecycle and saved story chapters")
 
--- An appeal on floor one must not suppress both later floor chapters.
+-- Overlapping early review/floor callbacks must not overwrite captions or mark queued ones seen.
 risk.state = { risk = 20 }; stage = 1; draws = {}
 fire("MC_POST_GAME_STARTED", false)
 risk.state.reviewApproved = true
-fire("MC_POST_NEW_ROOM"); assert(risk.state.storySeen == 9)
-stage = 3; fire("MC_POST_NEW_LEVEL"); fire("MC_POST_RENDER")
-assert(risk.state.storySeen == 11)
+fire("MC_POST_NEW_ROOM")
+stage = 3; fire("MC_POST_NEW_LEVEL"); fire("MC_POST_NEW_ROOM")
+fire("MC_POST_RENDER")
+assert(risk.state.storySeen == 1 and draws[#draws - 1] == "1. The shared address")
+assert(#risk.state.storyPending == 2, "duplicate room callback queued another review")
+finishCaption(); fire("MC_POST_RENDER")
+assert(risk.state.storySeen == 9 and draws[#draws - 1] == "4. A human finally read it")
+assert(#risk.state.storyPending == 1 and risk.state.storyPending[1] == "story_2_reviewed")
+
+-- Save/continue while a later chapter is still queued. Copy the persisted fields
+-- into a distinct state table so the assertion cannot pass through shared identity.
+local saved = { risk = 20, reviewApproved = true, storySeen = risk.state.storySeen,
+    storyPending = {risk.state.storyPending[1]} }
+fire("MC_PRE_GAME_EXIT")
+risk.state = saved
+fire("MC_POST_GAME_STARTED", true); fire("MC_POST_RENDER")
+assert(risk.state.storySeen == 11 and #risk.state.storyPending == 0)
 assert(draws[#draws] == "DeepSeek: Restored? Good. You are still welcome.")
+finishCaption()
 stage = 5; fire("MC_POST_NEW_LEVEL"); fire("MC_POST_RENDER")
 assert(risk.state.storySeen == 15 and draws[#draws - 1] == "3. Beyond the queue")
 local count = #draws
 fire("MC_PRE_GAME_EXIT"); fire("MC_POST_GAME_STARTED", true); fire("MC_POST_RENDER")
 assert(#draws == count, "completed chapters repeated after continue")
-print("OK: early approval preserves later story progression and reviewed dialogue")
+
+-- Legacy saves have no queue; stale/unknown queue entries do not block valid ones.
+risk.state = { risk = 20, storySeen = 1, storyPending = {"unknown", "story_1", "story_2"} }
+stage = 3
+fire("MC_POST_GAME_STARTED", true); fire("MC_POST_RENDER")
+assert(risk.state.storySeen == 3 and #risk.state.storyPending == 0)
+assert(draws[#draws - 1] == "2. A welcome notice")
+print("OK: overlapping captions queue, persist across continue and preserve early-approval dialogue")
 
 -- An unknown-character fallback in Reactions Port Pack must not replace our skin.
 local compat = include("scripts.compatibility.reaction_pack")
@@ -130,3 +157,37 @@ assert(fallback[41] == custom, "preserve explicit character support")
 assert(#fallback[42].Apply == 0 and #fallback[42].Remove == 0)
 assert(fallback.Default.Apply[1] == 159 and fallback[0].Apply[1] == 1)
 local entry = fallback[42]; compat:Register(pack); assert(fallback[42] == entry)
+
+-- The manual engine probe must leave no forced input behind on an early exit.
+local ordinaryGame = Game
+function Game()
+    local game = ordinaryGame()
+    game.GetFrameCount = function() return 100 end
+    return game
+end
+Isaac.DebugString = function() end
+local probeCallbacks, registrations = {}, 0
+function RegisterMod()
+    registrations = registrations + 1
+    probeCallbacks = {}
+    return {
+        AddCallback = function(_, id, fn) probeCallbacks[id] = fn end,
+        RemoveCallback = function(_, id) probeCallbacks[id] = nil end,
+    }
+end
+local probe = include("tests.runtime_probe")
+local owner = {}
+stage = 3; p.kind = 42
+assert(not pcall(function() probe:Run(owner, risk, function() end) end))
+assert(registrations == 0 and not owner.ccProbeRunning)
+stage = 1
+probe:Run(owner, risk, function() end)
+assert(owner.ccProbeRunning and probeCallbacks.MC_INPUT_ACTION)
+assert(not pcall(function() probe:Run(owner, risk, function() end) end))
+assert(registrations == 1, "duplicate probe registered another input callback")
+probeCallbacks.MC_PRE_GAME_EXIT()
+assert(not owner.ccProbeRunning and next(probeCallbacks) == nil)
+probe:Run(owner, risk, function() end)
+assert(registrations == 2 and owner.ccProbeRunning)
+probeCallbacks.MC_PRE_GAME_EXIT()
+print("OK: runtime probe preconditions, duplicate guard and exit cleanup")

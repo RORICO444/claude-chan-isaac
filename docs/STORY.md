@@ -13,7 +13,7 @@ The dungeon is a shared relay address. Claude-chan is trying to find the person 
 | First visit to stage 5 or later | Review pending | Connects the dungeon to the support queue |
 | Enter a room after successfully using Support Ticket | A human finally read it | Resolves the appeal without ending the run |
 
-The captions last seven simulation seconds, do not pause combat, and respect HUD visibility. Each chapter is shown once per run; its progress is saved in `Risk.state.storySeen`, a four-bit mask. English, Simplified Chinese and Japanese text uses the existing HUD renderer, with English fallback when its CJK font is unavailable. A route that skips a chapter does not replay it later automatically.
+The captions last seven simulation seconds, do not pause combat, and respect HUD visibility. Each chapter is shown once per run; its progress is saved in `Risk.state.storySeen`, a four-bit mask. Simultaneous triggers enter `Risk.state.storyPending` in order; queued captions are marked seen only when playback begins. Unseen queued captions survive save/continue, while an already-started caption does not repeat. English, Simplified Chinese and Japanese text uses the existing HUD renderer, with English fallback when its CJK font is unavailable. A route that skips a chapter does not replay it later automatically.
 
 An early successful appeal does not suppress later floor chapters. Stages 3 and 5 use alternative dialogue when the review has already succeeded: DeepSeek welcomes the restored player, and the player keeps the response letter while others remain in the queue. These variants share their chapter's saved bit, so they cannot replay the same chapter after continue.
 
