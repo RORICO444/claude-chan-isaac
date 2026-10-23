@@ -3,7 +3,7 @@ local root = arg[1]
 function include(name) return dofile(root .. "/" .. name:gsub("%.", "/") .. ".lua") end
 Isaac = {
     GetItemIdByName = function(n) return n == "Support Ticket" and 800 or 801 end,
-    GetPlayerTypeByName = function(n) return n == "DeepSeek-chan" and 42 or 41 end,
+    GetPlayerTypeByName = function(n, tainted) return (n == "DeepSeek-chan" and 42 or 41) + (tainted and 100 or 0) end,
     GetTrinketIdByName = function() return 190 end,
     GetPillEffectByName = function() return 50 end,
 }
@@ -26,6 +26,8 @@ function Game() return {
     } end,
     GetSeeds = function() return { GetStartSeed = function() return seed end } end,
     GetNumPlayers = function() return 2 end,
+    GetFrameCount = function() return FRAME or 0 end,
+    GetRoom = function() return { IsClear = function() return ROOMCLEAR ~= false end } end,
     GetHUD = function() return {
         IsVisible = function() return true end,
         ShowItemText = function(_, title) messages[#messages + 1] = title end,
@@ -55,19 +57,66 @@ risk.state.risk = 10
 assert(not use(32).Discharge and p.coins == 3 and risk:Get() == 10)
 assert(use().Discharge and risk:Get() == 0 and p.coins == 0)
 
+-- DeepSeek-chan: Deep Think, Server busy, Lunch Break pocket; tainted Open Source forks.
 callbacks = {}
+local roll = 0.99
+function RNG() return { SetSeed = function() end, RandomFloat = function() return roll end } end
+local enemies, spawned = 0, {}
+Isaac.CountEnemies = function() return enemies end
+EntityType.ENTITY_TEAR = 2
+Isaac.Spawn = function(_, _, _, _, velocity)
+    local t = { velocity = velocity }
+    function t:ToTear() return self end
+    spawned[#spawned + 1] = t
+    return t
+end
+function Isaac.GetScreenHeight() return 270 end
+function Isaac.RenderText(text) draws[#draws + 1] = text end
+local function tear(owner)
+    return { SpawnerEntity = { ToPlayer = function() return owner end }, CollisionDamage = 4,
+        Scale = 1, Variant = 0, Position = {}, Color = "c",
+        Velocity = { Rotated = function(_, a) return a end },
+        Remove = function(t) t.removed = true end }
+end
+p.GetData = function(pl) pl.data = pl.data or {}; return pl.data end
+other.GetData = p.GetData
 include("scripts.characters.deepseek_chan"):Init(mod, risk)
 fire("MC_POST_GAME_STARTED", false)
-assert(p.pocket == 800 and other.pocket == 800)
-p.pocket = 900; fire("MC_POST_GAME_STARTED", true); assert(p.pocket == 900)
-fire("MC_EVALUATE_CACHE", p, CacheFlag.CACHE_DAMAGE); assert(p.Damage == 8.5)
-fire("MC_EVALUATE_CACHE", p, CacheFlag.CACHE_FIREDELAY); assert(p.MaxFireDelay == 7.5)
-risk.state.risk = 30
-fire("MC_POST_NEW_ROOM"); fire("MC_PRE_SPAWN_CLEAN_AWARD"); assert(risk:Get() == 28)
-fire("MC_POST_NEW_ROOM"); fire("MC_ENTITY_TAKE_DMG")
-fire("MC_PRE_SPAWN_CLEAN_AWARD"); assert(risk:Get() == 28)
-p.kind, other.kind = 41, 41
-fire("MC_POST_NEW_ROOM"); fire("MC_PRE_SPAWN_CLEAN_AWARD"); assert(risk:Get() == 28)
+assert(p.pocket == 801 and other.pocket == 801, "normal DeepSeek-chan starts with Lunch Break")
+p.pocket = 900; fire("MC_POST_GAME_STARTED", true); assert(p.pocket == 900, "continue keeps the pocket item")
+fire("MC_EVALUATE_CACHE", p, CacheFlag.CACHE_DAMAGE); assert(p.Damage == 9)
+FRAME = 0; local t0 = tear(p); fire("MC_POST_FIRE_TEAR", t0); assert(t0.CollisionDamage == 4, "no thinking yet")
+FRAME = 15; local t1 = tear(p); fire("MC_POST_FIRE_TEAR", t1); assert(t1.CollisionDamage == 4, "under 1 s is not thinking")
+FRAME = 315; local t2 = tear(p); fire("MC_POST_FIRE_TEAR", t2)
+assert(t2.CollisionDamage == 8, "5 s of thinking (capped) doubles damage")
+fire("MC_POST_RENDER"); assert(draws[#draws] == "Thought for 5 s")
+enemies, roll = 10, 0.2
+FRAME = 400; local t3 = tear(p); fire("MC_POST_FIRE_TEAR", t3)
+assert(t3.removed, "server busy with 10 enemies at roll 0.2 (< 25%)")
+roll = 0.3; local t4 = tear(p); fire("MC_POST_FIRE_TEAR", t4)
+assert(not t4.removed, "busy chance is capped at 25%")
+p.kind = 142; enemies, roll = 0, 0.99
+local fork = tear(p); fire("MC_POST_FIRE_TEAR", fork)
+assert(#spawned == 2 and spawned[1].CollisionDamage == 2 and spawned[1].velocity == -12, "tainted forks two 50% tears")
+fire("MC_EVALUATE_CACHE", p, CacheFlag.CACHE_DAMAGE); assert(math.abs(p.Damage - 9 * 0.8) < 1e-9)
+p.kind = 42
+-- 摸鱼: standing still 5 s in a cleared room recharges the pocket Lunch Break by one.
+ActiveSlot.SLOT_POCKET = 2
+p.Velocity = { Length = function() return 0 end }
+p.charge = 2
+p.GetActiveItem = function() return 801 end
+p.GetActiveCharge = function(pl) return pl.charge end
+p.SetActiveCharge = function(pl, c) pl.charge = c end
+ROOMCLEAR = false
+for _ = 1, 200 do fire("MC_POST_PEFFECT_UPDATE", p) end
+assert(p.charge == 2, "no slacking during a fight")
+ROOMCLEAR = true
+for _ = 1, 149 do fire("MC_POST_PEFFECT_UPDATE", p) end
+assert(p.charge == 2, "not yet 5 s")
+fire("MC_POST_PEFFECT_UPDATE", p); assert(p.charge == 3, "5 s of slacking: +1 charge")
+p.charge = 6; for _ = 1, 300 do fire("MC_POST_PEFFECT_UPDATE", p) end
+assert(p.charge == 6, "never above the item's 6 charges")
+print("OK: DeepSeek-chan Deep Think, server busy, slacking off, pocket item and tainted forks")
 
 callbacks = {}
 local seeded
@@ -83,7 +132,7 @@ fire("MC_POST_NEW_LEVEL"); assert(a == risk.state.silentMult)
 risk.state.silentMult = 1.234
 fire("MC_POST_GAME_STARTED", true); assert(risk.state.silentMult == 1.234)
 
-callbacks = {}; Options = { Language = "en" }
+callbacks = {}; Options = { Language = "en" }; draws = {}
 function Isaac.RenderText(text) draws[#draws + 1] = text end
 function Isaac.GetScreenHeight() return 270 end
 include("scripts.story"):Init(mod, risk)
@@ -177,7 +226,7 @@ function RegisterMod()
 end
 local probe = include("tests.runtime_probe")
 local owner = {}
-stage = 3; p.kind = 42
+stage = 3; p.kind = 41
 assert(not pcall(function() probe:Run(owner, risk, function() end) end))
 assert(registrations == 0 and not owner.ccProbeRunning)
 stage = 1

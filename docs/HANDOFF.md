@@ -2,6 +2,19 @@
 
 Updated 2026-10-23 (Japan time), v0.4-dev. This is a Codex implementation handoff. No separate Claude session reviewed these changes; no Claude CLI or connected Claude service was available.
 
+## v0.5-dev (Claude session, 2026-10-23) - not yet run in game
+
+Owner requests: normal and tainted versions of both characters; DeepSeek-chan is unrelated to IPs, so her design was revisited; fix the sprites; fix bugs; item/character changes from X/Bilibili memes. Branch `claude/meme-update`.
+
+- **DeepSeek-chan redesign.** `Risk:IsActive()` is false when every player is DeepSeek-chan (normal or tainted): risk reads 0, never rises, no IP roll, no ban story, HUD shows 直连. In co-op with anyone else the system runs normally. Her own mechanics: Deep Think, Server busy, pocket **Lunch Break**. The Support Ticket is no longer her pocket item (still a shop item).
+- **Tainted characters** via `players.xml` `bSkinParent`; IDs `Constants.Player.CLAUDE_CHAN_B` / `DEEPSEEK_CHAN_B` (`GetPlayerTypeByName(name, true)`). Tainted Claude-chan: weekly tear quota (`Risk.state.weeklyUsed`), pocket Banked Reset. Tainted DeepSeek-chan: forked tears, busier servers. Research (Isaac Blueprints, tainted-unlock tutorial): without REPENTOGON there is no way to lock a modded tainted character in the menu, so they should be selectable immediately; an unlock would need an init-time `ChangePlayerType` swap back to the normal character plus a saved flag. The tainted toggle (E / RB) may still require a save with vanilla tainted characters unlocked. Not yet observed in game.
+- **Claude-chan account age** (`Risk.state.accountAge`).
+- **Sprites:** cell spill, cut-off side head and DeepSeek's walking bodies fixed (`tools/fix_character_cells.py`); tainted art is a recolour (`tools/make_tainted_art.py`). Everything the friend observed in game below was on the *pre-fix* atlases.
+- **Items:** 529 Overloaded lets you shoot at 50% during outages; Vibe Coding waives the bill after a no-hit floor.
+- **Bug fixes:** banned Relay Slimes don't split; Thinking Cleared drains only on first visits; The Constitution ignores self-inflicted damage.
+- **Runtime probe** now needs a Claude-chan run and swaps a Support Ticket into her pocket. Its recorded passes below were on the v0.4 DeepSeek build.
+- Stub tests cover all of the above (`bash tools/check.sh`). In-game checks: `docs/TESTING.md` "v0.5 focused checks".
+
 ## Implemented content
 
 - PR #1 (collaboration/CI) and PR #2 (RORICO444 item icons) were reviewed and merged, preserving contribution history. PR #2 was retargeted from `setup/collaboration` to `main` after #1 merged.

@@ -42,20 +42,24 @@ EntityType = { ENTITY_PLAYER = 1, ENTITY_TEAR = 2, ENTITY_PROJECTILE = 9, ENTITY
 CacheFlag = { CACHE_DAMAGE = 1, CACHE_RANGE = 2, CACHE_SHOTSPEED = 4, CACHE_SPEED = 8, CACHE_TEARCOLOR = 16, CACHE_FIREDELAY = 32, CACHE_FLYING = 64 }
 ActiveSlot = { SLOT_PRIMARY = 0, SLOT_POCKET = 2 }
 EntityFlag = { FLAG_FRIENDLY = 1 }
+DamageFlag = { DAMAGE_RED_HEARTS = 32, DAMAGE_IV_BAG = 4096, DAMAGE_FAKE = 2097152 }
 function Color(...) return { ... } end
 SoundEffect = { SOUND_POWERUP_SPEWER = 132 }
 function SFXManager() return { Play = function(_, id) print("  SFX:", id) end } end
 Vector = { Zero = { 0, 0 } }
 function EntityRef(e) return e end
 
-local items = { ["Ban Hammer"] = 733, ["Residential IP"] = 734, ["Compact"] = 735, ["You're Absolutely Right!"] = 736, ["9.9 Yuan Relay"] = 737, ["Ultrathink"] = 738, ["1M Context"] = 739, ["Silent Update"] = 740, ["--dangerously-skip-permissions"] = 741, ["All Tests Passing"] = 742, ["Vibe Coding"] = 743, ["Banked Reset"] = 744, ["Subagent Swarm"] = 745, ["The Constitution"] = 746, ["Support Ticket"] = 748, ["Opus Mode"] = 747 }
+local items = { ["Ban Hammer"] = 733, ["Residential IP"] = 734, ["Compact"] = 735, ["You're Absolutely Right!"] = 736, ["9.9 Yuan Relay"] = 737, ["Ultrathink"] = 738, ["1M Context"] = 739, ["Silent Update"] = 740, ["--dangerously-skip-permissions"] = 741, ["All Tests Passing"] = 742, ["Vibe Coding"] = 743, ["Banked Reset"] = 744, ["Subagent Swarm"] = 745, ["The Constitution"] = 746, ["Support Ticket"] = 748, ["Opus Mode"] = 747, ["Lunch Break"] = 749 }
 local playerItems = {}
 Isaac = {}
 function Isaac.GetItemIdByName(n) return items[n] or -1 end
 function Isaac.GetTrinketIdByName(n) return ({ ["529 Overloaded"] = 190, ["Hardcoded Output"] = 191, ["Thinking Cleared"] = 192, ["Welcome Notice"] = 193, ["Status Page"] = 194, ["Appeal Form"] = 195 })[n] or -1 end
 ROOMFRAME, ROOMCLEAR = 0, false
 function Isaac.GetPillEffectByName(n) return ({ ["Cat-girl Mode"] = 50, ["Brb, Getting Food"] = 51 })[n] or -1 end
-function Isaac.GetPlayerTypeByName(n) return n == "Claude-chan" and 41 or -1 end
+function Isaac.GetPlayerTypeByName(n, tainted)
+    local ids = { ["Claude-chan"] = 41, ["DeepSeek-chan"] = 42 }
+    return ids[n] and ids[n] + (tainted and 100 or 0) or -1
+end
 function Isaac.GetScreenHeight() return 270 end
 function Isaac.RenderText(s) print("  HUD: " .. s) end
 local pdata = {}
@@ -88,6 +92,7 @@ local function makeNpc(boss)
     function npc:AddConfusion(_, f) self.confused = f end
     function npc:AddCharmed(_, f) self.charmed = f end
     function npc:AddFreeze(_, f) self.frozen = (self.frozen or 0) + 1 end
+    function npc:AddSlowing(_, f) self.slowed = f end
     return npc
 end
 local roomEntities = {}
@@ -121,7 +126,7 @@ function Game()
         } end,
         ShakeScreen = function() end,
         GetFrameCount = function() return FRAME end,
-        GetRoom = function() return { GetDoor = function(_, slot) return DOORS[slot] end, SetClear = function(_, v) ROOMCLEAR = v end, IsClear = function() return ROOMCLEAR end, GetFrameCount = function() return ROOMFRAME end, GetCenterPos = function() return { 0, 0 } end } end,
+        GetRoom = function() return { IsFirstVisit = function() return FIRSTVISIT ~= false end, GetDoor = function(_, slot) return DOORS[slot] end, SetClear = function(_, v) ROOMCLEAR = v end, IsClear = function() return ROOMCLEAR end, GetFrameCount = function() return ROOMFRAME end, GetCenterPos = function() return { 0, 0 } end } end,
     }
 end
 
@@ -438,4 +443,118 @@ fire("MC_POST_PEFFECT_UPDATE", nil, player)
 print("  after 20 tears: coins", player.coins, "damage", player.Damage)
 player.coins = 1; fire("MC_POST_PEFFECT_UPDATE", nil, player)
 print("  picked up a coin: damage", player.Damage)
+
+print("== bugfix regressions")
+do
+    -- Constitution must not refuse self-inflicted damage, and must keep its block.
+    for k in pairs(playerItems) do playerItems[k] = nil end
+    playerItems[746] = true
+    RISK_REF.state.constitutionBlockUsed = false
+    local function hit(flags)
+        for _, cb in ipairs(callbacks) do
+            if cb.id == "MC_ENTITY_TAKE_DMG" and (cb.param == nil or cb.param == 1) then
+                local r = cb.fn(mod, player, 1, flags, {}, 0)
+                if r ~= nil then return r end
+            end
+        end
+    end
+    assert(hit(DamageFlag.DAMAGE_IV_BAG) == nil, "IV Bag damage must go through")
+    assert(RISK_REF.state.constitutionBlockUsed == false, "self-damage must not use the block")
+    assert(hit(0) == false, "a real hit is still refused")
+    print("  constitution ignores self-damage: ok")
+
+    -- A banned Relay Slime must not split.
+    local before = #SPAWNED
+    local slime = makeNpc(false); slime:GetData().ccRelaySlime = 0; slime:GetData().ccBanned = true
+    fire("MC_POST_ENTITY_KILL", nil, slime)
+    assert(#SPAWNED == before, "banned slime split")
+    print("  banned relay slime does not split: ok")
+
+    -- Thinking Cleared only drains a charge on a room's first visit.
+    playerItems[746] = nil
+    HELD_TRINKET = 192; player.charge = 4
+    FIRSTVISIT = false; fire("MC_POST_NEW_ROOM")
+    assert(player.charge == 4, "revisit drained a charge")
+    FIRSTVISIT = true; fire("MC_POST_NEW_ROOM")
+    assert(player.charge == 3, "first visit should drain one charge")
+    HELD_TRINKET = nil
+    print("  thinking cleared drains only on first visits: ok")
+end
+
+print("== characters v0.5")
+do
+    local R = RISK_REF
+    for k in pairs(playerItems) do playerItems[k] = nil end
+    HELD_TRINKET = nil
+    local realType = player.GetPlayerType
+
+    -- DeepSeek-chan alone: no proxy, no IP, no risk.
+    player.GetPlayerType = function() return 42 end
+    R.state.risk = 60
+    assert(not R:IsActive() and R:Get() == 0 and not R:IsSuspended(), "DeepSeek-only run must read risk 0")
+    R:Add(30); assert(R.state.risk == 60, "risk must not change while asleep")
+    local npcHP = makeNpc(false); fire("MC_POST_NPC_INIT", nil, npcHP)
+    assert(npcHP.MaxHitPoints == 10, "no enemy scaling for DeepSeek-chan")
+    player.GetPlayerType = function() return 142 end
+    assert(not R:IsActive(), "tainted DeepSeek-chan connects directly too")
+    player.GetPlayerType = realType
+    assert(R:IsActive() and R:Get() == 60, "Claude-chan brings the risk system back")
+    print("  DeepSeek-chan direct connection: ok")
+
+    -- Claude-chan account age.
+    R.state.risk = 10; R.state.accountAge = 0
+    stage = 2; fire("MC_POST_NEW_LEVEL"); stage = 3; fire("MC_POST_NEW_LEVEL")
+    assert(R.state.accountAge == 2, "two floors without suspension")
+    player.EvaluateItems = function(self)
+        self.Damage = 3.5
+        for _, cb in ipairs(callbacks) do if cb.id == "MC_EVALUATE_CACHE" then cb.fn(mod, self, CacheFlag.CACHE_DAMAGE) end end
+    end
+    for k in pairs(pdata) do if k:find("^cc") and k ~= "ccUsage" then pdata[k] = nil end end
+    player:EvaluateItems(); assert(math.abs(player.Damage - 3.9) < 1e-9, "account age adds +0.2 per floor")
+    R.state.risk = 95
+    fire("MC_POST_PEFFECT_UPDATE", nil, player)
+    assert(R.state.accountAge == 0, "suspension resets account age (banned again)")
+    R.state.risk = 10
+    print("  Claude-chan account age: ok")
+
+    -- Tainted Claude-chan weekly limit + Banked Reset.
+    player.GetPlayerType = function() return 141 end
+    R.state.weeklyUsed = 219
+    local last = { SpawnerEntity = player, CollisionDamage = 4 }
+    fire("MC_POST_FIRE_TEAR", nil, last); assert(R.state.weeklyUsed == 220 and last.CollisionDamage == 4)
+    local over = { SpawnerEntity = player, CollisionDamage = 4 }
+    fire("MC_POST_FIRE_TEAR", nil, over); assert(over.CollisionDamage == 1, "over the weekly limit: 25%")
+    fire("MC_USE_ITEM", 744, 744, nil, player); assert(R.state.weeklyUsed == 0, "Banked Reset refills the quota")
+    R.state.weeklyUsed = 100; stage = 4; fire("MC_POST_NEW_LEVEL"); assert(R.state.weeklyUsed == 0, "new floor, new week")
+    player.GetPlayerType = realType
+    print("  tainted Claude-chan weekly limit: ok")
+
+    -- Lunch Break.
+    local hearts, foe = player.hearts, makeNpc(false)
+    roomEntities = { foe }; player.FireDelay = 0
+    fire("MC_USE_ITEM", 749, 749, nil, player)
+    assert(player.hearts == hearts + 2 and player.FireDelay == 90 and foe.slowed == 90)
+    print("  Lunch Break: ok")
+
+    -- 529 Overloaded: manual coding at 50% instead of no shooting.
+    HELD_TRINKET = 190; ROOMCLEAR = false; roomEntities = { makeNpc(false) }
+    FRAME = 5000; player.FireDelay = 0
+    ROOMFRAME = 599; fire("MC_POST_UPDATE")
+    assert(player.FireDelay == 0, "you can still shoot during an outage")
+    local manual = { SpawnerEntity = player, CollisionDamage = 4 }
+    for _, cb in ipairs(callbacks) do
+        if cb.id == "MC_POST_FIRE_TEAR" and debug.getinfo(cb.fn, "S").source:find("overloaded") then cb.fn(mod, manual) end
+    end
+    assert(manual.CollisionDamage == 2, "manual coding deals 50%")
+    HELD_TRINKET = nil
+    print("  529 Overloaded manual coding: ok")
+
+    -- Vibe Coding: make no mistakes waives the bill.
+    playerItems[743] = true; player.coins = 40; pdata.ccVibeMistake = false
+    stage = 5; fire("MC_POST_NEW_LEVEL"); assert(player.coins == 40, "no hit on the floor: bill waived")
+    fire("MC_ENTITY_TAKE_DMG", EntityType.ENTITY_PLAYER, player, 1, 0, {})
+    stage = 6; fire("MC_POST_NEW_LEVEL"); assert(player.coins == 30, "a hit on the floor: bill charged")
+    playerItems[743] = nil
+    print("  Vibe Coding make no mistakes: ok")
+end
 print("OK")

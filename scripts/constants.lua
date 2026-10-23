@@ -16,6 +16,7 @@ Constants.Item = {
     SUBAGENT_SWARM = Isaac.GetItemIdByName("Subagent Swarm"),
     CONSTITUTION = Isaac.GetItemIdByName("The Constitution"),
     SUPPORT_TICKET = Isaac.GetItemIdByName("Support Ticket"),
+    LUNCH_BREAK = Isaac.GetItemIdByName("Lunch Break"),
     OPUS_MODE = Isaac.GetItemIdByName("Opus Mode"),
 }
 
@@ -36,7 +37,17 @@ Constants.Pill = {
 Constants.Player = {
     DEEPSEEK_CHAN = Isaac.GetPlayerTypeByName("DeepSeek-chan", false),
     CLAUDE_CHAN = Isaac.GetPlayerTypeByName("Claude-chan", false),
+    -- Tainted ("裏") versions: same name, second argument true.
+    DEEPSEEK_CHAN_B = Isaac.GetPlayerTypeByName("DeepSeek-chan", true),
+    CLAUDE_CHAN_B = Isaac.GetPlayerTypeByName("Claude-chan", true),
 }
+
+-- DeepSeek-chan (either version) connects directly: no proxy, no IP, no risk.
+function Constants.IsDeepSeek(player)
+    local t = player:GetPlayerType()
+    return (Constants.Player.DEEPSEEK_CHAN >= 0 and t == Constants.Player.DEEPSEEK_CHAN)
+        or (Constants.Player.DEEPSEEK_CHAN_B >= 0 and t == Constants.Player.DEEPSEEK_CHAN_B)
+end
 
 Constants.RISK_MAX = 100
 

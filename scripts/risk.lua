@@ -61,7 +61,21 @@ local function anyPlayerHasTrinket(trinket)
     return false
 end
 
+-- DeepSeek-chan needs no proxy (she connects directly), so when every player
+-- is DeepSeek-chan the whole IP / risk system sleeps: risk reads as 0, never
+-- rises, and no IP is rolled. In co-op with anyone else it runs as normal.
+function Risk:IsActive()
+    local n = Game():GetNumPlayers()
+    for i = 0, n - 1 do
+        if not Constants.IsDeepSeek(Isaac.GetPlayer(i)) then
+            return true
+        end
+    end
+    return n == 0
+end
+
 function Risk:Get()
+    if not self:IsActive() then return 0 end
     return self.state.risk
 end
 
@@ -87,10 +101,11 @@ local function fileAppeal()
 end
 
 function Risk:IsSuspended()
-    return self.state.risk >= SUSPEND_AT
+    return self:Get() >= SUSPEND_AT
 end
 
 function Risk:Add(amount)
+    if not self:IsActive() then return end
     local wasSuspended = self:IsSuspended()
     -- Residential IP halves every risk increase.
     if amount > 0 and anyPlayerHas(Constants.Item.RESIDENTIAL_IP) then
@@ -127,6 +142,7 @@ end
 
 -- Roll a new IP for the current floor and add the risk it brings.
 function Risk:RollIp()
+    if not self:IsActive() then return end
     local stage = Game():GetLevel():GetStage()
     local seed = Game():GetSeeds():GetStartSeed() + stage * 7919
     local rng = RNG()
@@ -211,9 +227,13 @@ function Risk:Init(mod)
     mod:AddCallback(ModCallbacks.MC_POST_RENDER, function()
         if not started or not Game():GetHUD():IsVisible() then return end
 
+        local y = Isaac.GetScreenHeight() - 28
+        if not Risk:IsActive() then
+            HudText:Draw(HudText:T("direct"), 50, y + 12, 0.45, 0.75, 1, 1)
+            return
+        end
         local tier = Risk:GetTier()
         local c = tier.color
-        local y = Isaac.GetScreenHeight() - 28
         HudText:Draw(HudText:T("ip", Risk.state.ip, Risk.state.sharedUsers), 50, y, 1, 1, 1, 0.8)
         if anyPlayerHasTrinket(Constants.Trinket.STATUS_PAGE) then
             HudText:Draw(HudText:T("operational"), 50, y + 12, 0.4, 1, 0.4, 1)

@@ -1,19 +1,22 @@
 -- Manual Repentance/Repentance+ probe; run only by an explicit developer callback.
 -- Console: lua Isaac.RunCallback("ClaudeChan:RunRuntimeProbe")
--- Use only an owned disposable DeepSeek stage-1 run.
+-- Use only an owned disposable Claude-chan stage-1 run. DeepSeek-chan no longer
+-- carries the Support Ticket and her runs have no risk, so the probe swaps the
+-- ticket into Claude-chan's pocket slot (replacing the Ban Hammer for that run).
 -- It changes test coins/risk, adds Car Battery, changes floors and round-trips this
 -- mod's own run save. It performs no OS, network or other-mod configuration calls.
 local Probe = {}
 function Probe:Run(owner, risk, storyStart)
 assert(Game():GetLevel():GetStage() == 1, "Start a disposable stage-1 test run")
-assert(Isaac.GetPlayer(0):GetPlayerType() == Isaac.GetPlayerTypeByName("DeepSeek-chan", false),
-    "Use a disposable DeepSeek-chan test run")
+assert(Isaac.GetPlayer(0):GetPlayerType() == Isaac.GetPlayerTypeByName("Claude-chan", false),
+    "Use a disposable Claude-chan test run")
 assert(not owner.ccProbeRunning, "A runtime probe is already running")
 owner.ccProbeRunning = true
 local probe = RegisterMod("CC manual runtime probe", 1)
 local player = Isaac.GetPlayer(0)
 local started, useUntil, phase, captionAt = Game():GetFrameCount(), 0, 0, 0
 local slot = ActiveSlot.SLOT_POCKET
+player:SetPocketActiveItem(Isaac.GetItemIdByName("Support Ticket"), slot, false)
 local function log(message)
     print("CCQA " .. message)
     Isaac.DebugString("CCQA " .. message)
@@ -87,7 +90,7 @@ exiting = function() stop("STOP run exited before probe completion") end
 probe:AddCallback(ModCallbacks.MC_PRE_GAME_EXIT, exiting)
 probe:AddCallback(ModCallbacks.MC_INPUT_ACTION, input)
 probe:AddCallback(ModCallbacks.MC_POST_UPDATE, update)
-log("START owned stage-1 DeepSeek probe")
+log("START owned stage-1 Claude-chan probe")
 
 end
 return Probe

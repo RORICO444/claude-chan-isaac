@@ -17,7 +17,7 @@ Sprites in this mod that depict these characters are derivatives of those design
 
 The 32x32 icon set was contributed by RORICO444 in PR #2. The Support Ticket icon is generated from original geometric primitives. These icons do not incorporate third-party character artwork.
 
-The character atlases and derived UI portraits/names are generated first-pass fan artwork, with design references credited above. See `docs/ART_GENERATION.md`. They do not bundle any Bilibili video frames or downloaded character illustrations. Treat these character assets under the non-commercial design terms above rather than the item icons' MIT terms. No original template illustration is distributed.
+The character atlases and derived UI portraits/names are generated first-pass fan artwork, with design references credited above. See `docs/ART_GENERATION.md`. They do not bundle any Bilibili video frames or downloaded character illustrations. Treat these character assets under the non-commercial design terms above rather than the item icons' MIT terms. No original template illustration is distributed. The tainted (裏) character sheets and portraits (`*_b.png`, `content/gfx/ai_portraits_b.png`) are recolours of those character assets and fall under the same non-commercial design terms.
 
 ## Trademarks
 

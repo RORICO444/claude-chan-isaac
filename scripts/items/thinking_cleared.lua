@@ -1,7 +1,8 @@
 -- Thinking Cleared (trinket)
 -- Based on the reported cache bug that wiped the thinking every turn: Claude
--- kept working, but forgot why. Each new room, your active item loses one
--- charge, but you get +1 damage for that room: still working, no idea why.
+-- kept working, but forgot why. Each room you enter for the first time drains
+-- one charge from your active item, but you get +1 damage while you hold it:
+-- still working, no idea why. Revisiting cleared rooms costs nothing.
 
 local Constants = include("scripts.constants")
 
@@ -11,12 +12,13 @@ local ROOM_DAMAGE = 1
 
 function ThinkingCleared:Init(mod)
     mod:AddCallback(ModCallbacks.MC_POST_NEW_ROOM, function()
+        local firstVisit = Game():GetRoom():IsFirstVisit()
         for i = 0, Game():GetNumPlayers() - 1 do
             local player = Isaac.GetPlayer(i)
             local data = player:GetData()
             local holds = player:HasTrinket(Constants.Trinket.THINKING_CLEARED)
 
-            if holds then
+            if holds and firstVisit then
                 local charge = player:GetActiveCharge(ActiveSlot.SLOT_PRIMARY)
                 if charge > 0 then
                     player:SetActiveCharge(charge - 1, ActiveSlot.SLOT_PRIMARY)

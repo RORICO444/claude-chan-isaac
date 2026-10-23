@@ -42,8 +42,10 @@ function RelaySlime:Init(mod, Risk)
     end)
 
     mod:AddCallback(ModCallbacks.MC_POST_ENTITY_KILL, function(_, entity)
-        local generation = entity:GetData().ccRelaySlime
-        if generation == nil or generation >= MAX_GENERATION then
+        local data = entity:GetData()
+        local generation = data.ccRelaySlime
+        -- A Ban Hammer ban is permanent: a banned relay doesn't split into new accounts.
+        if generation == nil or generation >= MAX_GENERATION or data.ccBanned then
             return
         end
         for _ = 1, 2 do

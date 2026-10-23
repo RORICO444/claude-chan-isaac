@@ -6,6 +6,10 @@
 -- Usage limit: every tear fills a usage meter that drains slowly over time.
 -- When it fills up she hits her usage limit: for 5 seconds her tears deal
 -- 40% damage, then the meter resets.
+-- Account age (账号满月): every floor she reaches without being Suspended, her
+-- account gets a floor older: +0.2 damage each, up to +1.6. Getting
+-- Suspended resets it to zero ("Banned again" / 又封了). Based on the
+-- "喜报：Claude满月啦" posts and the Bilibili song 《又封了》.
 
 local Constants = include("scripts.constants")
 local HudText = include("scripts.hud_text")
@@ -17,6 +21,9 @@ local USAGE_PER_TEAR = 4
 local USAGE_DRAIN_INTERVAL = 6      -- frames per point drained (5 points/second)
 local LIMIT_FRAMES = 150            -- 5 seconds
 local LIMITED_DAMAGE_MULT = 0.4
+
+local AGE_DAMAGE = 0.2
+local AGE_MAX = 8
 
 local TEAR_COLOR = Color(1, 0.55, 0.25, 1, 0, 0, 0)
 local LIMITED_TEAR_COLOR = Color(0.5, 0.5, 0.5, 0.7, 0, 0, 0)
@@ -34,7 +41,37 @@ local function getUsage(player)
     return data.ccUsage
 end
 
-function ClaudeChan:Init(mod)
+local function anyClaude()
+    for i = 0, Game():GetNumPlayers() - 1 do
+        if isClaude(Isaac.GetPlayer(i)) then return true end
+    end
+    return false
+end
+
+local function refreshDamage()
+    for i = 0, Game():GetNumPlayers() - 1 do
+        local player = Isaac.GetPlayer(i)
+        if isClaude(player) then
+            player:AddCacheFlags(CacheFlag.CACHE_DAMAGE)
+            player:EvaluateItems()
+        end
+    end
+end
+
+function ClaudeChan:Init(mod, Risk)
+    local ready = false
+    local function age() return Risk.state.accountAge or 0 end
+
+    mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, function() ready = true end)
+    mod:AddCallback(ModCallbacks.MC_PRE_GAME_EXIT, function() ready = false end)
+
+    -- POST_NEW_LEVEL also fires before the run starts; only count real floors.
+    mod:AddCallback(ModCallbacks.MC_POST_NEW_LEVEL, function()
+        if not ready or not anyClaude() or Risk:IsSuspended() then return end
+        Risk.state.accountAge = math.min(AGE_MAX, age() + 1)
+        refreshDamage()
+    end)
+
     -- Give the Ban Hammer as a pocket active on a fresh run only, so continuing
     -- a run doesn't reset its charge.
     mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, function(_, isContinued)
@@ -51,7 +88,9 @@ function ClaudeChan:Init(mod)
     mod:AddCallback(ModCallbacks.MC_EVALUATE_CACHE, function(_, player, flag)
         if not isClaude(player) then return end
 
-        if flag == CacheFlag.CACHE_RANGE then
+        if flag == CacheFlag.CACHE_DAMAGE then
+            player.Damage = player.Damage + AGE_DAMAGE * age()
+        elseif flag == CacheFlag.CACHE_RANGE then
             player.TearRange = player.TearRange + 1.5 * 40
         elseif flag == CacheFlag.CACHE_SHOTSPEED then
             player.ShotSpeed = player.ShotSpeed + 0.2
@@ -84,6 +123,12 @@ function ClaudeChan:Init(mod)
     mod:AddCallback(ModCallbacks.MC_POST_PEFFECT_UPDATE, function(_, player)
         if not isClaude(player) then return end
 
+        if age() > 0 and Risk:IsSuspended() then
+            Risk.state.accountAge = 0
+            refreshDamage()
+            Game():GetHUD():ShowItemText("Banned again", "Account age reset to 0")
+        end
+
         local usage = getUsage(player)
         if usage.limited > 0 then
             usage.limited = usage.limited - 1
@@ -102,7 +147,8 @@ function ClaudeChan:Init(mod)
             local player = Isaac.GetPlayer(i)
             if isClaude(player) then
                 local usage = getUsage(player)
-                local y = Isaac.GetScreenHeight() - 40 - i * 12
+                local y = Isaac.GetScreenHeight() - 40 - i * 24
+                HudText:Draw(HudText:T("age", age()), 50, y - 12, 1, 0.85, 0.5, 0.9)
                 if usage.limited > 0 then
                     HudText:Draw(HudText:T("limited", math.ceil(usage.limited / 30)), 50, y, 1, 0.3, 0.3, 1)
                 else

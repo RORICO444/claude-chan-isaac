@@ -10,6 +10,7 @@ local Constitution = {}
 
 local DAMAGE_MULT = 0.9
 local SPEED_DOWN = 0.1
+local SELF_INFLICTED = DamageFlag.DAMAGE_IV_BAG | DamageFlag.DAMAGE_RED_HEARTS | DamageFlag.DAMAGE_FAKE
 
 function Constitution:Init(mod, Risk)
     mod:AddCallback(ModCallbacks.MC_POST_NEW_LEVEL, function()
@@ -23,8 +24,11 @@ function Constitution:Init(mod, Risk)
         end
     end)
 
-    mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, function(_, entity)
+    mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, function(_, entity, _, flags)
         local player = entity:ToPlayer()
+        -- Only refuse real attacks; damage you choose to take yourself (IV Bag,
+        -- Razor Blade, blood donation) goes through and keeps the block.
+        if flags and (flags & SELF_INFLICTED) ~= 0 then return end
         if player and player:HasCollectible(Constants.Item.CONSTITUTION) and not Risk.state.constitutionBlockUsed then
             Risk.state.constitutionBlockUsed = true
             Game():GetHUD():ShowItemText("I can't help with that", "Safety comes first")

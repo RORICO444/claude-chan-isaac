@@ -30,6 +30,12 @@ local STRINGS = {
         usage = "Usage %d%%",
         limited = "Usage limit reached (%ds)",
         Clean = "Clean", Suspicious = "Suspicious", Flagged = "Flagged", Suspended = "Suspended",
+        direct = "Direct connection - no proxy needed",
+        thought = "Thought for %d s",
+        busy = "Server busy, please try again later",
+        slacking = "Slacking off... Lunch Break +1",
+        age = "Account age: %d floor(s)",
+        weekly = "Weekly limit %d / %d",
     },
     zh = {
         story_1_title = "一、共享地址",
@@ -50,6 +56,12 @@ local STRINGS = {
         usage = "用量 %d%%",
         limited = "已达用量上限（%d秒）",
         Clean = "纯净", Suspicious = "可疑", Flagged = "高风险", Suspended = "已封禁",
+        direct = "直连 · 无需代理",
+        thought = "已深度思考（用时 %d 秒）",
+        busy = "服务器繁忙，请稍后再试",
+        slacking = "摸鱼中……去吃饭了 +1",
+        age = "账号已存活 %d 层",
+        weekly = "周限额 %d / %d",
     },
     ja = {
         story_1_title = "一、共有アドレス",
@@ -70,6 +82,12 @@ local STRINGS = {
         usage = "使用量 %d%%",
         limited = "利用上限に到達（%d秒）",
         Clean = "クリーン", Suspicious = "要注意", Flagged = "高リスク", Suspended = "停止中",
+        direct = "直結・プロキシ不要",
+        thought = "%d秒間深く考えた",
+        busy = "サーバーが混み合っています。しばらくしてから再試行してください",
+        slacking = "サボり中……飯食ってくる +1",
+        age = "アカウント年齢：%dフロア",
+        weekly = "週間上限 %d / %d",
     },
 }
 

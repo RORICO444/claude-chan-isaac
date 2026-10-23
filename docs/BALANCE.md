@@ -52,3 +52,14 @@ These are from memory (the wiki is blocked from this environment), except Haemol
 
 - **Support Ticket:** shop active, six room charges, three coins for risk -20. A failed use preserves both coins and charge. Car Battery does not charge twice. Unlike the automatic Appeal Form trinket, this requires a manual decision before suspension.
 - **DeepSeek-chan:** two red hearts, one soul heart, three coins, one key; pocket Support Ticket. Damage x0.85 and firing interval x0.85 approximately preserve basic tear DPS while encouraging safe rooms. A room without any player taking damage reduces shared risk by two extra points, once per team. Balance has not been evaluated over a full run.
+
+# v0.5-dev characters (untested in game)
+
+| Character | Numbers | Watch for | Where |
+|---|---|---|---|
+| DeepSeek-chan | Damage ×0.9; Deep Think +0.2× per second idle, max ×2 after 5 s; Server busy 3%/enemy, max 25% | No risk at all may make her runs easier than Claude-chan's; Server busy may feel bad in big rooms | `deepseek_chan.lua` `THINK_*`, `BUSY` |
+| Tainted DeepSeek-chan | Damage ×0.8, 2 forks at 50% (≈ ×1.6 output if all hit); busy 5%/enemy, max 40% | Forks up close may be too strong; 40% busy in big rooms may be too punishing | `deepseek_chan.lua` `FORK_*`, `BUSY` |
+| Tainted Claude-chan | Damage ×1.25; 220 tears per floor, then 25% | Long floors (Womb+) may run out; boss rooms after the quota | `claude_chan_b.lua` `WEEKLY_LIMIT` |
+| Claude-chan account age | +0.2 damage per floor, max +1.6 | Rewards clean play; suspension reset may snowball with ×0.75 | `claude_chan.lua` `AGE_*` |
+| Lunch Break | 6 charges: +1 red heart, enemies slowed 3 s, no shooting 3 s | Heal per room-clear may be strong | `lunch_break.lua` |
+| 529 Overloaded | Shooting allowed during the 2 s outage at 50% | Now strictly good; may need a downside | `overloaded.lua` `MANUAL_DAMAGE` |
