@@ -7,10 +7,10 @@ The owner wants new item and character ideas implemented with corresponding artw
 | Requirement | Current evidence | Remaining work |
 |---|---|---|
 | Review contributions | PR #1 and #2 reviewed and merged | Preserve subsequent contributions through PRs |
-| Add an item | Support Ticket implemented, registered, pooled, localised and regression-tested | Actual use and zero-risk/2-coin charge retention observed; Car Battery and positive-risk insufficient-coins engine checks remain |
+| Add an item | Support Ticket implemented, registered, pooled, localised and regression-tested | Actual use, zero-risk refusal, risk-50/2-coin retention and Car Battery passed in Repentance+; broader synergies remain |
 | Add a character | DeepSeek-chan implemented; initial resources and pocket item observed in Repentance+ | Verify no-hit bonus in game, local co-op and a complete run |
 | Corresponding art | Claude/DeepSeek atlases, portraits, names and selection assets installed | Front/rear game views and Continue portraits observed; complete animation/costume/UI matrix remains |
-| Story | Four saved chapters and early-approval route variants in en/zh/ja | Subtitle/Loadout separation and no repeat of chapter one on continue observed; remaining chapters/languages remain |
+| Story | Four saved chapters and early-approval route variants in en/zh/ja | Subtitle separation, simultaneous-trigger queue and real JSON save/load passed; remaining chapters/languages remain |
 | Base-game compatibility | Repentance+ 1.9.7.17 loaded the corrected art build; Lua 5.3 and offline checks pass | Normal Repentance, local co-op, full-run and comprehensive costume checks remain open |
 | GitHub/local synchronisation | Feature work is tracked in PR #3; installed files match reviewed source | Keep branch commits and installed assets matched after each update |
 | Claude collaboration/handoff | `HANDOFF.md` records implementation, tests, gaps and next content ideas | No independent Claude review has occurred; next session should start from the handoff |

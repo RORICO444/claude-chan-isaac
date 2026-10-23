@@ -2,6 +2,8 @@
 
 ## v0.4-dev (2026-10-23)
 
+- Queue simultaneous story captions and save unseen pending chapters, preventing room/floor callbacks from silently dropping dialogue. Add collision/continue regressions and an explicit manual engine probe. Positive-risk insufficient funds, Car Battery and queued-story JSON round-trip passed in Repentance+.
+
 - Reviewed and merged PR #1 (collaboration checks) and PR #2 (RORICO444's 21 item/trinket icons).
 - Added Support Ticket: six charges, three coins for risk -20, with failed-use and Car Battery guards.
 - Added playable DeepSeek-chan with blue tears, a firing-interval/damage tradeoff, pocket Support Ticket and team-wide no-hit risk recovery.

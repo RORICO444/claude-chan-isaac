@@ -33,7 +33,16 @@ include("scripts.transformation"):Init(mod)
 include("scripts.characters.claude_chan"):Init(mod)
 include("scripts.items.support_ticket"):Init(mod, Risk)
 include("scripts.characters.deepseek_chan"):Init(mod, Risk)
-include("scripts.story"):Init(mod, Risk)
+local resumeStory = include("scripts.story"):Init(mod, Risk)
 include("scripts.eid"):Init()
 
 include("scripts.compatibility.reaction_pack"):Init(mod)
+
+-- Load the definition in this mod context; only an explicit developer callback runs it.
+local RuntimeProbe = include("tests.runtime_probe")
+mod:AddCallback("ClaudeChan:RunRuntimeProbe", function()
+    local ok, message = pcall(function()
+        RuntimeProbe:Run(mod, Risk, resumeStory)
+    end)
+    if not ok then print("CCQA FAIL " .. tostring(message)) end
+end)

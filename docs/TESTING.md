@@ -67,3 +67,15 @@ What the docs can't tell us is whether the gameplay *feels* right. That's what t
 - Subtitle position was moved above the lower HUD after observing EID overlap; confirm it with EID enabled.
 - Use Support Ticket on the first floor, then reach stage 3 and stage 5: both later chapters must still appear with their approved-route dialogue. Continue after all four chapters: none should repeat.
 - Repentance+ 1.9.7.17 gameplay startup was observed on 2026-10-23. This is not evidence of a full-run pass, normal Repentance compatibility or local co-op correctness.
+
+### Repeatable manual engine probe
+
+Use only a disposable, owned stage-1 DeepSeek run. In the game debug console run:
+
+```lua
+lua Isaac.RunCallback("ClaudeChan:RunRuntimeProbe")
+```
+
+Close the console and let the simulation run for about 13 seconds. This sets test coins/risk, uses the real pocket-item input, adds Car Battery, changes to stage 3 and round-trips this mod's run data. It does not change other mods' settings. Do not invoke it in a run you intend to preserve. Normal gameplay never calls it. A duplicate probe is rejected; input is removed on completion, failure or game exit.
+
+The probe must print `CCQA PASS` for insufficient funds (2/50/6), Car Battery (3/30/0), simultaneous captions (one pending), queue save/load (seen=11, pending=0), and completion. These assertions passed in Repentance+ 1.9.7.17 on 2026-10-23. They use the active shared Risk object, never a fresh `include("scripts.risk")`. The save/load case exercises the real mod JSON persistence and story-start handler; it does not replace a full application-restart/save-slot test.

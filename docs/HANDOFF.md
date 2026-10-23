@@ -14,6 +14,8 @@ Updated 2026-10-23 (Japan time), v0.4-dev. This is a Codex implementation handof
 - Silent Update seeds its floor RNG before drawing, including the pre-start `MC_POST_NEW_LEVEL` callback, and preserves the saved multiplier on continue.
 - Windows checks skip Python Store stubs and force UTF-8. Asset checks cover deterministic item icons, dimensions, pools, character paths and ANM2 bounds.
 
+- Fixed simultaneous caption triggers: room and floor events now queue chapters instead of overwriting them. Pending keys live in `Risk.state.storyPending` and survive save/load; their seen bits are set when they begin. Legacy saves remain supported.
+
 ## Actual validation
 
 - `bash tools/check.sh` passes under Lua 5.3 (`texlua`) and Python 3.10 on Windows: all four Lua tests, syntax, XML and assets. CI runs the same checks. Regression cases include item boundaries, Car Battery, co-op shared risk, floor seeding, early approval, saved chapters and optional reaction-pack fallbacks.
@@ -25,9 +27,12 @@ Updated 2026-10-23 (Japan time), v0.4-dev. This is a Codex implementation handof
 - Test aiming and pocket use used temporary session-only input callbacks through the game's debug console. They were never installed or committed; the final callback was removed before shutdown.
 - Steam's Cloud sync-failed warning was accepted only after the owner explicitly authorised proceeding. It remains a Steam sync issue, not a mod fix. Tests remained muted; the game was closed normally afterward.
 
+- A subsequent Repentance+ engine probe passed positive-risk insufficient funds (2 coins / risk 50 / 6 charges retained), Car Battery (6 to 3 coins / risk 50 to 30 / charge 0), simultaneous room/floor captions (seen=9, pending=1), and the actual mod JSON save/load path (seen=11, pending=0 after resuming). The queued second chapter rendered with approved-route dialogue.
+- `tests/runtime_probe.lua` is an explicit developer tool for disposable stage-1 DeepSeek runs. Invoke through the named custom callback documented in TESTING.md. Its fixtures change coins/risk, add Car Battery, change floor and round-trip only this mod's run data. It is never invoked by ordinary gameplay. Input callbacks are removed on completion, failure or early exit; duplicate invocation is refused. The guard/exit paths have regression coverage.
+
 ## Remaining release checks
 
-- Normal Repentance, local co-op, complete runs to Mom, no-hit bonus in the real game, Car Battery and positive-risk insufficient-funds engine cases remain to be checked. Offline tests cover these logic branches but cannot prove engine behaviour.
+- Normal Repentance, local co-op, complete runs to Mom and the no-hit bonus in real combat remain to be checked. The Car Battery and positive-risk insufficient-funds cases above now have engine evidence; additional synergies remain open.
 - Inspect all walking/shooting directions, hurt/death/flying frames, boss/stage transition portraits, skin-colour items, transformations and more D4 outcomes. The art is usable first-pass work, not final animation polish. Separate hair costumes may be needed to preserve the design through skin-changing items.
 - Check the final chapter and approved caption with ordinary room transitions, and test all languages at different screen/HUD settings. Saved-state logic has regression coverage; only a subset of chapters has been observed in game.
 - The pre-existing `stackable items v2` startup error (`resources/scripts/main.lua:154: table index is nil`) still occurs. Another existing mod's entities2 assertion and resource-cache shutdown warnings are unrelated. Do not change or disable unrelated mods without checking with the owner.
