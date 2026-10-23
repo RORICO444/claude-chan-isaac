@@ -16,7 +16,8 @@ with tempfile.TemporaryDirectory() as temporary:
                     '--out', str(out), '--check-symmetry'], check=True, stdout=subprocess.PIPE)
     definitions = ET.parse(root / 'content/items.xml').getroot()
     for item in definitions:
-        relative = item.attrib['gfx'].removeprefix('gfx/items/')
+        folder = 'trinkets' if item.tag == 'trinket' else 'collectibles'
+        relative = f'{folder}/{item.attrib["gfx"]}'
         path = root / 'resources/gfx/items' / relative
         png = path.read_bytes()
         assert png[:8] == b'\x89PNG\r\n\x1a\n', path
